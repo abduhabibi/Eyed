@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Eye‑D | Biometric Authentication</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for icons (optional, but adds beauty) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with gradient (GitHub style) -->
+        <header>
+            <div class="logo">
+                <i class="fas fa-eye"></i>
+                <span>Eye‑D</span>
+            </div>
+            <p class="tagline">authenticate with your unique eyelid squeeze</p>
+        </header>
+
+        <!-- Main action buttons -->
+        <div class="button-group">
+            <button id="registerBtn" class="action-btn register">
+                <i class="fas fa-user-plus"></i> Register
+            </button>
+            <button id="verifyBtn" class="action-btn verify">
+                <i class="fas fa-fingerprint"></i> Verify
+            </button>
+            <button id="dataBtn" class="action-btn data">
+                <i class="fas fa-chart-line"></i> Data
+            </button>
+        </div>
+
+        <!-- Hidden file inputs (triggered by buttons) -->
+        <input type="file" id="registerVideo" accept="video/*" style="display: none;">
+        <input type="file" id="verifyVideo" accept="video/*" style="display: none;">
+
+        <!-- Dynamic status area -->
+        <div id="status" class="status-card">
+            <div class="status-header">
+                <i class="fas fa-info-circle"></i> System Status
+            </div>
+            <div id="statusMessage" class="status-message">
+                Ready. Click Register or Verify.
+            </div>
+        </div>
+
+        <!-- Data panel (hidden initially, shown when Data button is clicked) -->
+        <div id="dataPanel" class="data-panel" style="display: none;">
+            <div class="data-header">
+                <i class="fas fa-database"></i> Biometric Data Dashboard
+                <button id="closeDataPanel" class="close-btn">&times;</button>
+            </div>
+            <div id="dataContent" class="data-content">
+                <p>Loading data...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
