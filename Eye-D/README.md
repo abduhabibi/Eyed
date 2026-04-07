@@ -61,10 +61,15 @@ Eye‑D captures these movements with a **normal camera** (webcam or phone), tur
 
 ## 🚀 Quick Start
 
-### 1. Clone & install
+## 📄 License
+For research and personal use only. Commercial licensing available – contact the author.
 
-```bash
-git clone https://github.com/yourusername/eyed-biometric.git
+## 🙌 Acknowledgements
+MediaPipe team for face landmarks
+
+scikit‑learn for GMM implementation
+
+OpenCV & FastAPI communities
 cd eyed-biometric
 python -m venv venv
 source venv/bin/activate   # or `venv\Scripts\activate` on Windows
