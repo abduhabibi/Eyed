@@ -1,29 +1,19 @@
-# Eye-D Backend Dependencies
-# Install with: pip install -r requirements.txt
-
 # Core web framework
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-multipart==0.0.6
+fastapi==0.110.0
+uvicorn[standard]==0.29.0
+python-multipart==0.0.9
 
 # Database & ORM
-sqlalchemy==2.0.23
-# SQLite is built-in, no extra driver needed
+sqlalchemy==2.0.28
 
 # Computer Vision & Media Processing
-opencv-python==4.8.1.78
-mediapipe==0.10.8
+opencv-python==4.9.0.80
+mediapipe==0.10.11
 
 # Scientific computing & machine learning
-numpy==1.24.3
-scipy==1.11.4
-scikit-learn==1.3.2
+numpy==1.26.4
+scipy==1.12.0
+scikit-learn==1.4.1.post1
 
 # Encryption
-cryptography==41.0.7
-
-# Optional: for better matplotlib plots (if you enable plotting in extractors)
-# matplotlib==3.8.2
-
-# For progress bars (optional)
-# tqdm==4.66.1
+cryptography==42.0.5
