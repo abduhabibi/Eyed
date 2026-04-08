@@ -8,7 +8,8 @@ sqlalchemy==2.0.28
 
 # Computer Vision & Media Processing
 opencv-python==4.9.0.80
-mediapipe==0.10.11
+# Use one of the versions your error message listed
+mediapipe==0.10.14
 
 # Scientific computing & machine learning
 numpy==1.26.4
