@@ -1,24 +1,23 @@
 # Core web framework
-fastapi==0.110.0
-uvicorn[standard]==0.29.0
-python-multipart==0.0.9
+fastapi==0.115.12
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
 
 # Database & ORM
-sqlalchemy==2.0.28
+sqlalchemy==2.0.38
 
 # Computer Vision & Media Processing
-opencv-python==4.9.0.80
-mediapipe==0.10.9          # downgraded to a stable version compatible with numpy 1.26
-# If mediapipe still fails, try 0.10.3
+opencv-python==4.11.0.86
+mediapipe==0.10.33
 
 # Scientific computing & machine learning
 numpy==1.26.4
-scipy==1.12.0
-scikit-learn==1.4.1.post1
+scipy==1.15.2
+scikit-learn==1.6.1
 
 # Encryption
-cryptography==42.0.5
+cryptography==44.0.2
 
-# Additional utilities (recommended)
-python-dotenv==1.0.1       # for managing environment variables (encryption key)
-httpx==0.27.0              # for testing API endpoints (optional)
+# Additional utilities
+python-dotenv==1.0.1
+httpx==0.28.1
