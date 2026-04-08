@@ -8,8 +8,8 @@ sqlalchemy==2.0.28
 
 # Computer Vision & Media Processing
 opencv-python==4.9.0.80
-# Use one of the versions your error message listed
-mediapipe==0.10.14
+mediapipe==0.10.9          # downgraded to a stable version compatible with numpy 1.26
+# If mediapipe still fails, try 0.10.3
 
 # Scientific computing & machine learning
 numpy==1.26.4
@@ -18,3 +18,7 @@ scikit-learn==1.4.1.post1
 
 # Encryption
 cryptography==42.0.5
+
+# Additional utilities (recommended)
+python-dotenv==1.0.1       # for managing environment variables (encryption key)
+httpx==0.27.0              # for testing API endpoints (optional)
