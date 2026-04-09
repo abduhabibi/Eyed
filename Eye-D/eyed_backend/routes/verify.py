@@ -5,7 +5,7 @@
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from routes.data import VerifyResponse, extract_features_from_video
-from db_handler import get_user, log_authentication
+from database.db_handler import get_user, log_authentication
 import tempfile
 import os
 import pickle

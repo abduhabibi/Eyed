@@ -10,11 +10,17 @@ from scipy.signal import savgol_filter
 from scipy.stats import linregress
 import os
 import glob
+import argparse
 
 # -------------------------------
 # 1. CONFIGURATION
 # -------------------------------
-VIDEO_FOLDER = "squeeze_videos_person_A/"   # CHANGE THIS
+# The backend uses a fixed input video path (`squeeze_video.avi`) and calls this
+# script once per uploaded video. For the original research workflow you can
+# still point VIDEO_FOLDER to a directory of squeeze clips, but for the app to
+# run out-of-the-box we fall back to the fixed input if the folder is missing or empty.
+VIDEO_FOLDER = "squeeze_videos_person_A/"   # optional research dataset folder
+DEFAULT_INPUT_VIDEO_PATH = "squeeze_video.avi"
 UPPER_LID = 159
 LOWER_LID = 145
 LEFT_CANTHUS = 133
@@ -76,9 +82,20 @@ def extract_amplitude_peak_velocity(video_path):
     return amplitude, peak_velocity
 
 # -------------------------------
-# 2. PROCESS ALL VIDEOS
+# 2. PROCESS VIDEOS (folder if available, else fixed input)
 # -------------------------------
-video_paths = glob.glob(os.path.join(VIDEO_FOLDER, "*.[amv][pm4]*"))  # .avi, .mp4, .mov
+parser = argparse.ArgumentParser()
+parser.add_argument("--input", default=DEFAULT_INPUT_VIDEO_PATH, help="Path to input video (backend mode)")
+parser.add_argument("--video-folder", default=VIDEO_FOLDER, help="Folder of squeeze clips (research mode)")
+parser.add_argument("--outdir", default=".", help="Directory to write .npy outputs")
+args = parser.parse_args()
+
+os.makedirs(args.outdir, exist_ok=True)
+
+video_paths = []
+if os.path.isdir(args.video_folder):
+    video_paths = glob.glob(os.path.join(args.video_folder, "*.[amv][pm4]*"))  # .avi, .mp4, .mov
+
 amplitudes, peak_velocities = [], []
 for path in video_paths:
     amp, vel = extract_amplitude_peak_velocity(path)
@@ -86,13 +103,18 @@ for path in video_paths:
         amplitudes.append(amp)
         peak_velocities.append(vel)
 
-if len(amplitudes) < 3:
-    print("Need at least 3 valid squeezes.")
-    exit()
-
-# Linear regression
-slope, intercept, r_value, _, _ = linregress(amplitudes, peak_velocities)
-r_squared = r_value ** 2
+# If we don't have enough clips for a regression, fall back to a single-clip estimate.
+if len(amplitudes) >= 3:
+    slope, intercept, r_value, _, _ = linregress(amplitudes, peak_velocities)
+    r_squared = r_value ** 2
+else:
+    amp, vel = extract_amplitude_peak_velocity(args.input)
+    if amp is None or vel is None:
+        print("Need at least one valid squeeze video.")
+        exit()
+    amplitudes = [amp]
+    peak_velocities = [vel]
+    slope, intercept, r_squared = 0.0, 0.0, 0.0
 
 feature_vector = np.array([
     slope,
@@ -107,4 +129,4 @@ feature_vector = np.array([
 print("\n=== Feature 2: Main Sequence ===")
 print(f"Slope: {slope:.4f}, Intercept: {intercept:.4f}, R²: {r_squared:.4f}")
 print(f"Feature vector length: {len(feature_vector)}")
-np.save("feature2_main_sequence.npy", feature_vector)
+np.save(os.path.join(args.outdir, "feature2_main_sequence.npy"), feature_vector)

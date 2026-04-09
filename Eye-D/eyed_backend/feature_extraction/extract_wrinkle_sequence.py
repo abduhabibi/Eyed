@@ -7,8 +7,10 @@ import cv2
 import mediapipe as mp
 import numpy as np
 from scipy.spatial.distance import cdist
+import argparse
+import os
 
-INPUT_VIDEO_PATH = "squeeze_video.avi"
+DEFAULT_INPUT_VIDEO_PATH = "squeeze_video.avi"
 LEFT_CANTHUS = 133
 RIGHT_CANTHUS = 362
 RIGHT_EYE_LANDMARKS = [362, 263, 387, 386, 385, 384, 398, 466]
@@ -44,7 +46,14 @@ def get_eye_roi(landmarks, frame_shape):
     x_max, y_max = min(w, x_max+pad), min(h, y_max+pad)
     return (x_min, y_min, x_max, y_max)
 
-cap = cv2.VideoCapture(INPUT_VIDEO_PATH)
+parser = argparse.ArgumentParser()
+parser.add_argument("--input", default=DEFAULT_INPUT_VIDEO_PATH, help="Path to input video")
+parser.add_argument("--outdir", default=".", help="Directory to write .npy outputs")
+args = parser.parse_args()
+
+os.makedirs(args.outdir, exist_ok=True)
+
+cap = cv2.VideoCapture(args.input)
 fps = cap.get(cv2.CAP_PROP_FPS)
 if fps <= 0:
     fps = 30.0
@@ -145,4 +154,4 @@ print("\n=== Feature 4: Wrinkle Sequence ===")
 print(f"Number of wrinkles: {num_wrinkles}")
 print(f"Avg delay between appearances (s): {avg_delay:.4f}")
 print(f"Avg max wrinkle length (normalized): {avg_length:.4f}")
-np.save("feature4_wrinkle.npy", feature_vector)
+np.save(os.path.join(args.outdir, "feature4_wrinkle.npy"), feature_vector)

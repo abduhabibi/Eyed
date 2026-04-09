@@ -8,8 +8,10 @@ import mediapipe as mp
 import numpy as np
 from scipy.signal import savgol_filter
 from scipy.spatial.distance import euclidean
+import argparse
+import os
 
-INPUT_VIDEO_PATH = "squeeze_video.avi"
+DEFAULT_INPUT_VIDEO_PATH = "squeeze_video.avi"
 MEDIAL_CANTHUS = 133   # right eye inner corner
 LEFT_CANTHUS = 133
 RIGHT_CANTHUS = 362
@@ -27,7 +29,14 @@ def get_interocular_distance(landmarks, frame_shape):
     right_pt = np.array([right.x * w, right.y * h])
     return np.linalg.norm(left_pt - right_pt)
 
-cap = cv2.VideoCapture(INPUT_VIDEO_PATH)
+parser = argparse.ArgumentParser()
+parser.add_argument("--input", default=DEFAULT_INPUT_VIDEO_PATH, help="Path to input video")
+parser.add_argument("--outdir", default=".", help="Directory to write .npy outputs")
+args = parser.parse_args()
+
+os.makedirs(args.outdir, exist_ok=True)
+
+cap = cv2.VideoCapture(args.input)
 if not cap.isOpened():
     print("Error opening video")
     exit()
@@ -87,4 +96,4 @@ feature_vector = np.array([path_len, max_disp] + list(trajectory_feature[:20])) 
 print("\n=== Feature 3: 3D Path ===")
 print(f"Path length: {path_len:.4f}, Max displacement: {max_disp:.4f}")
 print(f"Feature vector length: {len(feature_vector)}")
-np.save("feature3_3d_path.npy", feature_vector)
+np.save(os.path.join(args.outdir, "feature3_3d_path.npy"), feature_vector)

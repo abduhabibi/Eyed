@@ -6,8 +6,10 @@ import cv2
 import mediapipe as mp
 import numpy as np
 from scipy.signal import savgol_filter
+import argparse
+import os
 
-INPUT_VIDEO_PATH = "squeeze_video.avi"
+DEFAULT_INPUT_VIDEO_PATH = "squeeze_video.avi"
 # Right eye upper lid segments (inner, middle, outer)
 UPPER = [159, 160, 161]   # inner, middle, outer
 LOWER = [145, 146, 147]
@@ -27,7 +29,14 @@ def get_interocular_distance(landmarks, frame_shape):
     right_pt = np.array([right.x * w, right.y * h])
     return np.linalg.norm(left_pt - right_pt)
 
-cap = cv2.VideoCapture(INPUT_VIDEO_PATH)
+parser = argparse.ArgumentParser()
+parser.add_argument("--input", default=DEFAULT_INPUT_VIDEO_PATH, help="Path to input video")
+parser.add_argument("--outdir", default=".", help="Directory to write .npy outputs")
+args = parser.parse_args()
+
+os.makedirs(args.outdir, exist_ok=True)
+
+cap = cv2.VideoCapture(args.input)
 fps = cap.get(cv2.CAP_PROP_FPS)
 if fps <= 0:
     fps = 30.0
@@ -95,4 +104,4 @@ feature_vector = np.array([delay_inner_middle, delay_middle_outer])
 print("\n=== Feature 5: Wave Closure ===")
 print(f"Delay inner→middle (s): {delay_inner_middle:.4f}")
 print(f"Delay middle→outer (s): {delay_middle_outer:.4f}")
-np.save("feature5_wave_closure.npy", feature_vector)
+np.save(os.path.join(args.outdir, "feature5_wave_closure.npy"), feature_vector)

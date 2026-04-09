@@ -8,11 +8,13 @@ import mediapipe as mp
 import numpy as np
 from scipy.signal import savgol_filter
 from scipy.integrate import trapezoid
+import argparse
+import os
 
 # -------------------------------
 # 1. CONFIGURATION
 # -------------------------------
-INPUT_VIDEO_PATH = "squeeze_video.avi"   # CHANGE THIS
+DEFAULT_INPUT_VIDEO_PATH = "squeeze_video.avi"
 EYELID_MASS_KG = 0.0003                  # ~0.3 grams
 
 # MediaPipe landmarks (right eye, refine_landmarks=True)
@@ -51,9 +53,16 @@ def get_interocular_distance(landmarks, frame_shape):
 # -------------------------------
 # 4. PROCESS VIDEO
 # -------------------------------
-cap = cv2.VideoCapture(INPUT_VIDEO_PATH)
+parser = argparse.ArgumentParser()
+parser.add_argument("--input", default=DEFAULT_INPUT_VIDEO_PATH, help="Path to input video")
+parser.add_argument("--outdir", default=".", help="Directory to write .npy outputs")
+args = parser.parse_args()
+
+os.makedirs(args.outdir, exist_ok=True)
+
+cap = cv2.VideoCapture(args.input)
 if not cap.isOpened():
-    print(f"Error: Cannot open {INPUT_VIDEO_PATH}")
+    print(f"Error: Cannot open {args.input}")
     exit()
 
 # Get actual FPS
@@ -136,4 +145,4 @@ print(f"Work (arbitrary units): {work:.4f}")
 print(f"Braking time ratio: {braking_time_ratio:.4f}")
 print(f"Duration (s): {duration:.4f}")
 print(f"Feature vector length: {len(feature_vector)}")
-np.save("feature1_kinetic.npy", feature_vector)
+np.save(os.path.join(args.outdir, "feature1_kinetic.npy"), feature_vector)

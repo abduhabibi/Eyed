@@ -99,7 +99,7 @@ async def startup_event():
     os.makedirs("models", exist_ok=True)
     os.makedirs("temp_features", exist_ok=True)
     # Initialize database tables (if not already done)
-    from db_handler import init_db
+    from database.db_handler import init_db
     init_db()
     logger.info("Database initialized (if not already present).")
 

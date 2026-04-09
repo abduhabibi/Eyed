@@ -6,8 +6,7 @@
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from routes.data import RegisterResponse, extract_features_from_video
-from db_handler import add_user, add_feature_vector
-from train import train_model_from_vectors   # We'll define this helper below
+from database.db_handler import add_user, add_feature_vector
 import tempfile
 import os
 import numpy as np

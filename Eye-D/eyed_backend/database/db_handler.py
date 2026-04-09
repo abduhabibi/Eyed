@@ -15,7 +15,7 @@ import numpy as np
 import pickle
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from models import Base, User, FeatureVector, AuthenticationLog
+from database.models import Base, User, FeatureVector, AuthenticationLog
 
 # -------------------------------
 # 1. DATABASE SETUP
