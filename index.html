@@ -9,152 +9,35 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
     <style>
+        /* (same CSS as before – keep it) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #03060c;
-            min-height: 100vh;
-            color: #eef4ff;
-            overflow-x: hidden;
-            position: relative;
-        }
-        #neuralCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: block;
-            z-index: 0;
-        }
-        .container {
-            position: relative;
-            z-index: 10;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1.5rem;
-            backdrop-filter: blur(2px);
-        }
-        .welcome-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at 30% 40%, #0a0f2a, #020408);
-            backdrop-filter: blur(8px);
-            z-index: 2000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.5s ease;
-        }
-        .welcome-content {
-            text-align: center;
-            animation: fadeUp 0.8s ease;
-        }
-        .welcome-content h1 {
-            font-size: 4rem;
-            background: linear-gradient(135deg, #fff, #60a5fa);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-        }
+        body { font-family: 'Inter', sans-serif; background: #03060c; min-height: 100vh; color: #eef4ff; overflow-x: hidden; position: relative; }
+        #neuralCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+        .container { position: relative; z-index: 10; max-width: 1400px; margin: 0 auto; padding: 1.5rem; backdrop-filter: blur(2px); }
+        .welcome-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 30% 40%, #0a0f2a, #020408); backdrop-filter: blur(8px); z-index: 2000; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
+        .welcome-content { text-align: center; animation: fadeUp 0.8s ease; }
+        .welcome-content h1 { font-size: 4rem; background: linear-gradient(135deg, #fff, #60a5fa); background-clip: text; -webkit-background-clip: text; color: transparent; }
         .tagline { font-size: 1.2rem; color: #94a3b8; margin-bottom: 2rem; }
         .welcome-buttons { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
-        .welcome-btn {
-            background: rgba(15, 25, 45, 0.8);
-            backdrop-filter: blur(12px);
-            border: 1px solid #3b82f6;
-            padding: 1rem 2rem;
-            border-radius: 60px;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #e2e8f0;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        .welcome-btn { background: rgba(15, 25, 45, 0.8); backdrop-filter: blur(12px); border: 1px solid #3b82f6; padding: 1rem 2rem; border-radius: 60px; font-size: 1.2rem; font-weight: 600; color: #e2e8f0; cursor: pointer; transition: 0.2s; }
         .welcome-btn i { margin-right: 0.6rem; color: #60a5fa; }
         .welcome-btn:hover { background: #1e3a5f; transform: translateY(-4px); }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
         .nav-tabs { display: flex; gap: 0.8rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap; }
-        .nav-btn {
-            background: rgba(20, 30, 45, 0.65);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(72, 187, 255, 0.3);
-            padding: 0.7rem 1.8rem;
-            border-radius: 60px;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #b9e2ff;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        .nav-btn { background: rgba(20, 30, 45, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(72, 187, 255, 0.3); padding: 0.7rem 1.8rem; border-radius: 60px; font-size: 1rem; font-weight: 600; color: #b9e2ff; cursor: pointer; transition: 0.2s; }
         .nav-btn.active { background: #1e3a5f; border-color: #3b82f6; color: white; box-shadow: 0 0 12px rgba(59,130,246,0.4); }
         .nav-btn:hover:not(.active) { background: rgba(59,130,246,0.3); transform: translateY(-2px); }
         .page { display: none; animation: fadeIn 0.3s ease; }
         .page.active-page { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .glass-card {
-            background: rgba(15, 25, 40, 0.55);
-            backdrop-filter: blur(12px);
-            border-radius: 32px;
-            border: 1px solid rgba(59,130,246,0.25);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .webcam-container {
-            position: relative;
-            width: 100%;
-            max-width: 640px;
-            margin: 1rem auto;
-            border-radius: 28px;
-            overflow: hidden;
-            border: 2px solid rgba(59,130,246,0.5);
-            background: #000;
-        }
+        .glass-card { background: rgba(15, 25, 40, 0.55); backdrop-filter: blur(12px); border-radius: 32px; border: 1px solid rgba(59,130,246,0.25); padding: 1.5rem; margin-bottom: 2rem; }
+        .webcam-container { position: relative; width: 100%; max-width: 640px; margin: 1rem auto; border-radius: 28px; overflow: hidden; border: 2px solid rgba(59,130,246,0.5); background: #000; }
         video { width: 100%; display: block; transform: scaleX(-1); }
-        .squeeze-overlay {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
-            padding: 6px 18px;
-            border-radius: 40px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: #ffd966;
-            pointer-events: none;
-            z-index: 5;
-        }
+        .squeeze-overlay { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); padding: 6px 18px; border-radius: 40px; font-size: 0.9rem; font-weight: bold; color: #ffd966; pointer-events: none; z-index: 5; }
         .squeeze-overlay.active { background: #2d6a4f; color: white; box-shadow: 0 0 12px #2d6a4f; }
-        .ear-indicator {
-            margin: 10px auto;
-            text-align: center;
-            font-size: 0.8rem;
-            background: rgba(0,0,0,0.6);
-            padding: 4px 12px;
-            border-radius: 20px;
-            display: inline-block;
-            width: auto;
-        }
-        .guidance {
-            background: #1e293b;
-            border-radius: 16px;
-            padding: 0.8rem;
-            margin-top: 1rem;
-            font-size: 0.85rem;
-            text-align: center;
-        }
-        .metadata-panel {
-            background: rgba(10, 20, 30, 0.7);
-            border-radius: 24px;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
+        .ear-indicator { margin: 10px auto; text-align: center; font-size: 0.8rem; background: rgba(0,0,0,0.6); padding: 4px 12px; border-radius: 20px; display: inline-block; width: auto; }
+        .guidance { background: #1e293b; border-radius: 16px; padding: 0.8rem; margin-top: 1rem; font-size: 0.85rem; text-align: center; }
+        .metadata-panel { background: rgba(10, 20, 30, 0.7); border-radius: 24px; padding: 1rem; margin-top: 1rem; }
         .field-group { display: flex; gap: 0.8rem; margin-bottom: 0.8rem; align-items: center; }
         .field-group input { flex: 1; background: #0f172a; border: 1px solid #2d3a5e; padding: 0.6rem 1rem; border-radius: 40px; color: white; }
         .remove-field { background: none; border: none; color: #f87171; cursor: pointer; }
@@ -170,6 +53,7 @@
         .modal-content { background: #0f172a; border-radius: 32px; max-width: 500px; width: 90%; padding: 2rem; border: 1px solid #3b82f6; }
         .close-modal { float: right; font-size: 1.5rem; cursor: pointer; }
         .result-card { background: rgba(0,20,40,0.7); border-left: 4px solid #3b82f6; padding: 1rem; margin: 1rem 0; border-radius: 1rem; }
+        .error-message { color: #f87171; background: rgba(127,29,29,0.3); padding: 0.5rem; border-radius: 12px; margin-top: 0.5rem; }
     </style>
 </head>
 <body>
@@ -252,7 +136,7 @@
 </div>
 
 <script>
-    // ======================= NEURAL BACKGROUND (same as before, grid-based) =======================
+    // ======================= NEURAL BACKGROUND (same as before) =======================
     const canvas = document.getElementById('neuralCanvas');
     const ctx = canvas.getContext('2d');
     let nodes = [];
@@ -364,14 +248,14 @@
     resizeAndInit();
     animateNeural();
 
-    // ======================= EYE‑D BIOMETRIC LOGIC (COMPLETE) =======================
+    // ======================= EYE‑D BIOMETRIC LOGIC (FIXED: accumulates 3 squeezes) =======================
     const API_BASE = "http://localhost:8000";
     let currentStream = null;
     let faceMesh = null;
     let camera = null;
     let currentMode = "register";
     let registrationSqueezeCount = 0;
-    let registrationRecordings = [];
+    let registrationRecordings = [];   // stores blobs of 3 squeezes
     let verifyCallback = false;
     let squeezeDetected = false;
     let lastEarValue = 1.0;
@@ -380,7 +264,7 @@
     let calibrationSum = 0;
     let calibrated = false;
 
-    // Recorder variables (created after user clicks "Start Monitoring")
+    // Recorder variables
     let registerRecorder = null;
     let verifyRecorder = null;
     let registerMonitoring = false;
@@ -393,16 +277,20 @@
         }
         if (camera) camera.stop();
         camera = null;
-        if (registerRecorder && registerRecorder.state !== 'inactive') registerRecorder = null;
-        if (verifyRecorder && verifyRecorder.state !== 'inactive') verifyRecorder = null;
+        registerRecorder = null;
+        verifyRecorder = null;
         registerMonitoring = false;
         verifyMonitoring = false;
     }
 
-    function updateGuidance(mode, message, earValue = null) {
+    function updateGuidance(mode, message, earValue = null, isError = false) {
         const guidanceDiv = document.getElementById(`${mode}Guidance`);
         const earDiv = document.getElementById(`${mode}EarDisplay`);
-        if (guidanceDiv) guidanceDiv.innerHTML = message;
+        if (guidanceDiv) {
+            guidanceDiv.innerHTML = message;
+            if (isError) guidanceDiv.style.color = "#f87171";
+            else guidanceDiv.style.color = "#eef4ff";
+        }
         if (earDiv && earValue !== null) {
             const closedPercent = Math.round((1 - earValue) * 100);
             earDiv.innerHTML = `👀 Eye openness: ${earValue.toFixed(3)} (${closedPercent}% closed)`;
@@ -440,7 +328,7 @@
             });
             camera.start();
         } catch (err) {
-            updateGuidance(mode, `❌ Camera error: ${err.message}`, 1.0);
+            updateGuidance(mode, `❌ Camera error: ${err.message}. Please allow camera access.`, null, true);
         }
     }
 
@@ -460,7 +348,7 @@
 
     function onFaceMeshResults(results, mode) {
         if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
-            updateGuidance(mode, "⚠️ No face detected. Look at camera.", 1.0);
+            updateGuidance(mode, "⚠️ No face detected. Look directly at camera.", 1.0);
             return;
         }
         const landmarks = results.multiFaceLandmarks[0];
@@ -482,11 +370,11 @@
         }
         if (!calibrated) return;
 
-        const overlay = document.getElementById(mode === 'register' ? 'registerSqueezeOverlay' : 'verifySqueezeOverlay');
         const monitoring = (mode === 'register') ? registerMonitoring : verifyMonitoring;
         updateGuidance(mode, ear < earThreshold ? "👍 Squeeze detected! Recording..." : "😐 Eyes open. Squeeze firmly.", ear);
         if (ear < earThreshold && !squeezeDetected && monitoring) {
             squeezeDetected = true;
+            const overlay = document.getElementById(mode === 'register' ? 'registerSqueezeOverlay' : 'verifySqueezeOverlay');
             if (overlay) {
                 overlay.innerText = '👁️ SQUEEZE DETECTED!';
                 overlay.classList.add('active');
@@ -496,6 +384,7 @@
             else if (mode === 'verify') handleVerifySqueeze();
         } else if (ear >= earThreshold + 0.05) {
             squeezeDetected = false;
+            const overlay = document.getElementById(mode === 'register' ? 'registerSqueezeOverlay' : 'verifySqueezeOverlay');
             if (overlay && mode === 'register' && registrationSqueezeCount < 3) overlay.innerText = `Ready for squeeze ${registrationSqueezeCount+1}/3`;
             else if (overlay && mode === 'verify') overlay.innerText = '🔍 Monitoring';
         }
@@ -511,7 +400,17 @@
             registerRecorder.onstop = () => {
                 const blob = new Blob(registerRecorder.recordingChunks, { type: 'video/webm' });
                 registerRecorder.recordingChunks = [];
-                uploadRegistrationBlob(blob);
+                // Store blob in registrationRecordings
+                registrationRecordings.push(blob);
+                registrationSqueezeCount++;
+                const statusDiv = document.getElementById('registerStatus');
+                if (registrationSqueezeCount < 3) {
+                    statusDiv.innerHTML = `✅ Squeeze ${registrationSqueezeCount} recorded. Waiting for ${3 - registrationSqueezeCount} more.`;
+                    updateGuidance('register', `Squeeze ${registrationSqueezeCount+1}/3`, lastEarValue);
+                } else {
+                    statusDiv.innerHTML = `All 3 squeezes recorded. Sending to server...`;
+                    uploadAllThreeSqueezes();
+                }
             };
             registerMonitoring = true;
             updateGuidance('register', '✅ Monitoring active. Squeeze 3 times.', lastEarValue);
@@ -545,38 +444,56 @@
         }
     }
 
-    async function uploadRegistrationBlob(blob) {
+    async function uploadAllThreeSqueezes() {
         const statusDiv = document.getElementById('registerStatus');
-        statusDiv.innerHTML = `Uploading squeeze ${registrationSqueezeCount+1}/3...`;
-        const formData = new FormData();
-        formData.append('videos', blob, `squeeze_${registrationSqueezeCount+1}.webm`);
         const nameField = document.querySelector('.field-group input[name="name"]');
         const name = nameField ? nameField.value.trim() : 'User';
+        if (!name) {
+            statusDiv.innerHTML = '❌ Please enter your name.';
+            return;
+        }
+        const formData = new FormData();
         formData.append('name', name);
+        // Append all 3 blobs with the same key 'videos'
+        for (let i = 0; i < registrationRecordings.length; i++) {
+            formData.append('videos', registrationRecordings[i], `squeeze_${i+1}.webm`);
+        }
+        // Append other metadata fields
         document.querySelectorAll('.field-group').forEach(field => {
             const input = field.querySelector('input');
-            if (input && input.name !== 'name' && input.value.trim()) formData.append(input.name, input.value.trim());
+            if (input && input.name !== 'name' && input.value.trim()) {
+                formData.append(input.name, input.value.trim());
+            }
         });
         try {
             const res = await fetch(`${API_BASE}/register/`, { method: 'POST', body: formData });
             const data = await res.json();
             if (res.ok) {
-                registrationSqueezeCount++;
-                statusDiv.innerHTML = `✅ Squeeze ${registrationSqueezeCount}/3 recorded.`;
-                if (registrationSqueezeCount === 3) {
-                    alert(`User ${name} enrolled successfully!`);
-                    registrationSqueezeCount = 0;
-                    registerMonitoring = false;
-                    registerRecorder = null;
-                    statusDiv.innerHTML = 'Enrollment complete. You can close or register another user.';
-                } else {
-                    setTimeout(() => statusDiv.innerHTML = `Ready for squeeze ${registrationSqueezeCount+1}/3`, 1000);
-                }
+                statusDiv.innerHTML = `✅ Registration successful! User ID: ${data.user_id}`;
+                alert(`User ${name} enrolled!`);
+                // Reset for next user
+                registrationSqueezeCount = 0;
+                registrationRecordings = [];
+                calibrated = false;
+                calibrationFrames = 0;
+                calibrationSum = 0;
+                registerMonitoring = false;
+                registerRecorder = null;
+                statusDiv.innerHTML = 'Enrollment complete. You can register another user.';
             } else {
-                statusDiv.innerHTML = `❌ Error: ${data.detail}`;
+                statusDiv.innerHTML = `❌ Server error: ${data.detail || 'Unknown error'}`;
+                // Provide actionable advice based on common errors
+                if (data.detail && data.detail.includes('lighting')) {
+                    updateGuidance('register', '💡 Poor lighting detected. Please ensure your face is well lit.', null, true);
+                } else if (data.detail && data.detail.includes('face')) {
+                    updateGuidance('register', '👤 Face not clearly visible. Look directly at camera.', null, true);
+                } else {
+                    updateGuidance('register', `❌ ${data.detail}`, null, true);
+                }
             }
         } catch(err) {
-            statusDiv.innerHTML = `❌ Network error: ${err.message}`;
+            statusDiv.innerHTML = `❌ Network error: ${err.message}. Check if backend is running at ${API_BASE}`;
+            updateGuidance('register', `Network error: ${err.message}`, null, true);
         }
     }
 
@@ -599,7 +516,7 @@
         formData.append('video', blob, 'verify.webm');
         const username = prompt("Enter your username:");
         if (!username) {
-            document.getElementById('verifyStatus').innerHTML = 'Cancelled.';
+            document.getElementById('verifyStatus').innerHTML = 'Verification cancelled.';
             document.getElementById('verifySqueezeOverlay').innerText = 'Monitoring';
             verifyCallback = false;
             return;
@@ -618,9 +535,15 @@
             } else {
                 resultDiv.innerHTML = `<strong>❌ ACCESS DENIED</strong><br>Score: ${data.score?.toFixed(4) || 'N/A'}<br>No match for ${username}`;
                 statusDiv.innerHTML = 'Verification failed.';
+                if (data.detail && data.detail.includes('lighting')) {
+                    updateGuidance('verify', '💡 Poor lighting. Please improve lighting and try again.', null, true);
+                } else if (data.detail && data.detail.includes('face')) {
+                    updateGuidance('verify', '👤 Face not detected. Look directly at camera.', null, true);
+                }
             }
         } catch(err) {
             statusDiv.innerHTML = `Error: ${err.message}`;
+            updateGuidance('verify', `Network error: ${err.message}`, null, true);
         }
         verifyCallback = false;
     }
