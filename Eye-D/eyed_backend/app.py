@@ -4,10 +4,13 @@
 # and provides a health check endpoint.
 
 import logging
+import json
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from routes import register, verify
+from database.models import User
+from database.db_handler import get_db_session
 import os
 
 # -------------------------------
@@ -78,7 +81,45 @@ async def health_check():
     return {"status": "ok", "service": "Eye-D Backend"}
 
 # -------------------------------
-# 6. REGISTER ROUTERS (from routes/ folder)
+# 6. USER DATA ENDPOINTS (GET ALL USERS, DELETE USER)
+# -------------------------------
+@app.get("/users", tags=["Data"])
+async def get_all_users():
+    """Get all enrolled users"""
+    session = get_db_session()
+    try:
+        users = session.query(User).all()
+        return [
+            {
+                "id": u.id,
+                "name": u.name,
+                "metadata": json.loads(u.metadata) if u.metadata else {},
+                "created_at": u.created_at.isoformat()
+            }
+            for u in users
+        ]
+    finally:
+        session.close()
+
+@app.delete("/users/{user_id}", tags=["Data"])
+async def delete_user(user_id: int):
+    """Delete a user and all associated data"""
+    session = get_db_session()
+    try:
+        user = session.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        session.delete(user)
+        session.commit()
+        return {"ok": True}
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=500, detail=f"Delete failed: {str(e)}")
+    finally:
+        session.close()
+
+# -------------------------------
+# 7. REGISTER ROUTERS (from routes/ folder)
 # -------------------------------
 # The register and verify modules each contain a FastAPI router.
 app.include_router(register.router)
@@ -89,7 +130,7 @@ app.include_router(verify.router)
 # app.include_router(update.router)
 
 # -------------------------------
-# 7. STARTUP AND SHUTDOWN EVENTS (optional)
+# 8. STARTUP AND SHUTDOWN EVENTS (optional)
 # -------------------------------
 @app.on_event("startup")
 async def startup_event():
@@ -109,7 +150,7 @@ async def shutdown_event():
     logger.info("Eye-D Backend shutting down.")
 
 # -------------------------------
-# 8. RUN THE APP (only when executed directly)
+# 9. RUN THE APP (only when executed directly)
 # -------------------------------
 if __name__ == "__main__":
     import uvicorn
