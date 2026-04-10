@@ -9,11 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
             background: #03060c;
@@ -64,20 +60,9 @@
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            margin-bottom: 0.5rem;
         }
-        .tagline {
-            font-size: 1.2rem;
-            color: #94a3b8;
-            margin-bottom: 2rem;
-        }
-        .welcome-buttons {
-            display: flex;
-            gap: 1.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 2rem;
-        }
+        .tagline { font-size: 1.2rem; color: #94a3b8; margin-bottom: 2rem; }
+        .welcome-buttons { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
         .welcome-btn {
             background: rgba(15, 25, 45, 0.8);
             backdrop-filter: blur(12px);
@@ -90,63 +75,29 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .welcome-btn i {
-            margin-right: 0.6rem;
-            color: #60a5fa;
-        }
-        .welcome-btn:hover {
-            background: #1e3a5f;
-            transform: translateY(-4px);
-        }
-        .synaptic-note {
-            font-size: 0.8rem;
-            color: #4b5563;
-        }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* Navigation tabs */
-        .nav-tabs {
-            display: flex;
-            gap: 0.8rem;
-            justify-content: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
+        .welcome-btn i { margin-right: 0.6rem; color: #60a5fa; }
+        .welcome-btn:hover { background: #1e3a5f; transform: translateY(-4px); }
+        .synaptic-note { font-size: 0.8rem; color: #4b5563; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .nav-tabs { display: flex; gap: 0.8rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap; }
         .nav-btn {
             background: rgba(20, 30, 45, 0.65);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(72, 187, 255, 0.3);
             padding: 0.7rem 1.8rem;
+            border-radius: 60px;
             font-size: 1rem;
             font-weight: 600;
             color: #b9e2ff;
             cursor: pointer;
-            border-radius: 60px;
             transition: 0.2s;
         }
-        .nav-btn i { margin-right: 0.5rem; }
-        .nav-btn.active {
-            background: #1e3a5f;
-            border-color: #3b82f6;
-            color: white;
-            box-shadow: 0 0 12px rgba(59,130,246,0.4);
-        }
-        .nav-btn:hover:not(.active) {
-            background: rgba(59,130,246,0.3);
-            transform: translateY(-2px);
-        }
-        /* Pages */
-        .page {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
+        .nav-btn.active { background: #1e3a5f; border-color: #3b82f6; color: white; box-shadow: 0 0 12px rgba(59,130,246,0.4); }
+        .nav-btn:hover:not(.active) { background: rgba(59,130,246,0.3); transform: translateY(-2px); }
+        .page { display: none; animation: fadeIn 0.3s ease; }
         .page.active-page { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .glass-card {
             background: rgba(15, 25, 40, 0.55);
             backdrop-filter: blur(12px);
@@ -165,11 +116,7 @@
             border: 2px solid rgba(59,130,246,0.5);
             background: #000;
         }
-        video {
-            width: 100%;
-            display: block;
-            transform: scaleX(-1);
-        }
+        video { width: 100%; display: block; transform: scaleX(-1); }
         .squeeze-overlay {
             position: absolute;
             bottom: 20px;
@@ -183,11 +130,26 @@
             font-weight: bold;
             color: #ffd966;
             pointer-events: none;
+            z-index: 5;
         }
-        .squeeze-overlay.active {
-            background: #2d6a4f;
-            color: white;
-            box-shadow: 0 0 12px #2d6a4f;
+        .squeeze-overlay.active { background: #2d6a4f; color: white; box-shadow: 0 0 12px #2d6a4f; }
+        .ear-indicator {
+            margin: 10px auto;
+            text-align: center;
+            font-size: 0.8rem;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            width: auto;
+        }
+        .guidance {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 0.8rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            text-align: center;
         }
         .metadata-panel {
             background: rgba(10, 20, 30, 0.7);
@@ -195,121 +157,26 @@
             padding: 1rem;
             margin-top: 1rem;
         }
-        .field-group {
-            display: flex;
-            gap: 0.8rem;
-            margin-bottom: 0.8rem;
-            align-items: center;
-        }
-        .field-group input {
-            flex: 1;
-            background: #0f172a;
-            border: 1px solid #2d3a5e;
-            padding: 0.6rem 1rem;
-            border-radius: 40px;
-            color: white;
-        }
-        .remove-field {
-            background: none;
-            border: none;
-            color: #f87171;
-            cursor: pointer;
-        }
-        .small-btn {
-            background: #1e293b;
-            border: 1px solid #3b82f6;
-            padding: 0.3rem 1rem;
-            border-radius: 30px;
-            cursor: pointer;
-            color: #a5f3fc;
-        }
-        .action-primary {
-            background: linear-gradient(95deg, #1e4b6e, #0f2c44);
-            border: none;
-            padding: 0.8rem;
-            border-radius: 60px;
-            font-weight: bold;
-            color: white;
-            width: 100%;
-            cursor: pointer;
-        }
-        .status-msg {
-            margin-top: 1rem;
-            padding: 0.8rem;
-            border-radius: 20px;
-            background: rgba(0,0,0,0.5);
-            text-align: center;
-        }
-        .user-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        .user-card {
-            background: rgba(15, 25, 45, 0.7);
-            backdrop-filter: blur(12px);
-            border-radius: 24px;
-            border: 1px solid #2d4a6e;
-            padding: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .user-card:hover {
-            transform: translateY(-5px);
-            border-color: #3b82f6;
-        }
-        .user-card .user-name {
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-        }
-        .delete-user {
-            background: #7f1a1a;
-            border: none;
-            border-radius: 30px;
-            padding: 0.2rem 0.7rem;
-            color: white;
-            cursor: pointer;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background: #0f172a;
-            border-radius: 32px;
-            max-width: 500px;
-            width: 90%;
-            padding: 2rem;
-            border: 1px solid #3b82f6;
-        }
-        .close-modal {
-            float: right;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        .result-card {
-            background: rgba(0,20,40,0.7);
-            border-left: 4px solid #3b82f6;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 1rem;
-        }
+        .field-group { display: flex; gap: 0.8rem; margin-bottom: 0.8rem; align-items: center; }
+        .field-group input { flex: 1; background: #0f172a; border: 1px solid #2d3a5e; padding: 0.6rem 1rem; border-radius: 40px; color: white; }
+        .remove-field { background: none; border: none; color: #f87171; cursor: pointer; }
+        .small-btn { background: #1e293b; border: 1px solid #3b82f6; padding: 0.3rem 1rem; border-radius: 30px; cursor: pointer; color: #a5f3fc; }
+        .action-primary { background: linear-gradient(95deg, #1e4b6e, #0f2c44); border: none; padding: 0.8rem; border-radius: 60px; font-weight: bold; color: white; width: 100%; cursor: pointer; }
+        .status-msg { margin-top: 1rem; padding: 0.8rem; border-radius: 20px; background: rgba(0,0,0,0.5); text-align: center; }
+        .user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .user-card { background: rgba(15, 25, 45, 0.7); backdrop-filter: blur(12px); border-radius: 24px; border: 1px solid #2d4a6e; padding: 1rem; cursor: pointer; transition: 0.2s; }
+        .user-card:hover { transform: translateY(-5px); border-color: #3b82f6; }
+        .user-card .user-name { display: flex; justify-content: space-between; font-weight: bold; }
+        .delete-user { background: #7f1a1a; border: none; border-radius: 30px; padding: 0.2rem 0.7rem; color: white; cursor: pointer; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #0f172a; border-radius: 32px; max-width: 500px; width: 90%; padding: 2rem; border: 1px solid #3b82f6; }
+        .close-modal { float: right; font-size: 1.5rem; cursor: pointer; }
+        .result-card { background: rgba(0,20,40,0.7); border-left: 4px solid #3b82f6; padding: 1rem; margin: 1rem 0; border-radius: 1rem; }
     </style>
 </head>
 <body>
-
 <canvas id="neuralCanvas"></canvas>
 
-<!-- WELCOME OVERLAY -->
 <div id="welcomeOverlay" class="welcome-overlay">
     <div class="welcome-content">
         <h1><i class="fas fa-eye"></i> Eye‑D</h1>
@@ -339,6 +206,8 @@
                 <video id="registerVideo" autoplay muted playsinline></video>
                 <div id="registerSqueezeOverlay" class="squeeze-overlay">👁️ Ready</div>
             </div>
+            <div id="registerEarDisplay" class="ear-indicator">👀 Eye openness: waiting...</div>
+            <div id="registerGuidance" class="guidance"></div>
             <div class="metadata-panel">
                 <h3>Identity Data <button id="addFieldBtn" class="small-btn"><i class="fas fa-plus"></i> Add Field</button></h3>
                 <div id="dynamicFields"></div>
@@ -356,6 +225,8 @@
                 <video id="verifyVideo" autoplay muted playsinline></video>
                 <div id="verifySqueezeOverlay" class="squeeze-overlay">🔍 Monitoring</div>
             </div>
+            <div id="verifyEarDisplay" class="ear-indicator">👀 Eye openness: waiting...</div>
+            <div id="verifyGuidance" class="guidance"></div>
             <div id="verifyResult" class="result-card" style="display:none;"></div>
             <div id="verifyStatus" class="status-msg">Ready – squeeze to identify</div>
         </div>
@@ -382,7 +253,7 @@
 </div>
 
 <script>
-    // ======================= NEURAL NETWORK BACKGROUND (GRID‑BASED) =======================
+    // ======================= NEURAL NETWORK BACKGROUND (unchanged, grid-based) =======================
     const canvas = document.getElementById('neuralCanvas');
     const ctx = canvas.getContext('2d');
     let nodes = [];
@@ -400,12 +271,11 @@
 
     function initNodes() {
         nodes = [];
-        // Create a grid of cells, each cell gets 2-4 nodes
         for (let col = 0; col < cols; col++) {
             for (let row = 0; row < rows; row++) {
                 const cellX = col * CELL_SIZE;
                 const cellY = row * CELL_SIZE;
-                const numNodes = Math.floor(Math.random() * 3) + 2; // 2-4 nodes per cell
+                const numNodes = Math.floor(Math.random() * 3) + 2;
                 for (let i = 0; i < numNodes; i++) {
                     nodes.push({
                         x: cellX + Math.random() * CELL_SIZE,
@@ -424,16 +294,12 @@
 
     function updateNodes() {
         for (let node of nodes) {
-            // Move within its own cell boundaries
             const cellMinX = node.cellCol * CELL_SIZE;
             const cellMaxX = cellMinX + CELL_SIZE;
             const cellMinY = node.cellRow * CELL_SIZE;
             const cellMaxY = cellMinY + CELL_SIZE;
-
             node.x += node.vx;
             node.y += node.vy;
-
-            // Bounce off cell walls
             if (node.x < cellMinX) { node.x = cellMinX; node.vx *= -0.8; }
             if (node.x > cellMaxX) { node.x = cellMaxX; node.vx *= -0.8; }
             if (node.y < cellMinY) { node.y = cellMinY; node.vy *= -0.8; }
@@ -443,8 +309,6 @@
 
     function drawNeural() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // 1. Draw connections between nodes within 150px distance (any nodes, even across cells)
         for (let i = 0; i < nodes.length; i++) {
             for (let j = i + 1; j < nodes.length; j++) {
                 const dx = nodes[i].x - nodes[j].x;
@@ -461,12 +325,9 @@
                 }
             }
         }
-        
-        // 2. Mouse connections: find which cell the mouse is in, then connect to nodes in that cell (and neighbors optional)
         const mouseCol = Math.floor(mouseX / CELL_SIZE);
         const mouseRow = Math.floor(mouseY / CELL_SIZE);
         for (let node of nodes) {
-            // Only connect if node is in the same cell as mouse (or adjacent? We'll do same cell for performance)
             if (node.cellCol === mouseCol && node.cellRow === mouseRow) {
                 const distToMouse = Math.hypot(node.x - mouseX, node.y - mouseY);
                 if (distToMouse < 150) {
@@ -483,8 +344,6 @@
             }
         }
         ctx.shadowBlur = 0;
-        
-        // 3. Draw nodes (neurons)
         for (let node of nodes) {
             ctx.beginPath();
             ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
@@ -506,20 +365,13 @@
         requestAnimationFrame(animateNeural);
     }
     
-    window.addEventListener('resize', () => {
-        resizeAndInit();
-    });
-    window.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    });
-    
-    // Start neural background
+    window.addEventListener('resize', () => { resizeAndInit(); });
+    window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
     resizeAndInit();
     animateNeural();
     
-    // ======================= EYE‑D BIOMETRIC LOGIC =======================
-    const API_BASE = "http://localhost:8000";
+    // ======================= EYE‑D BIOMETRIC LOGIC (FIXED FOR MOBILE) =======================
+    const API_BASE = "http://localhost:8000";   // change to your backend URL
     let currentStream = null;
     let faceMesh = null;
     let camera = null;
@@ -528,42 +380,56 @@
     let registrationRecordings = [];
     let verifyCallback = null;
     let squeezeDetected = false;
+    let lastEarValue = 1.0;
+    let earThreshold = 0.20;   // will be adjusted dynamically based on open eye value
 
-    function stopWebcam() {
-        if (currentStream) {
-            currentStream.getTracks().forEach(t => t.stop());
-            currentStream = null;
+    // Helper to update guidance and EAR display
+    function updateGuidance(mode, message, earValue = null) {
+        const guidanceDiv = document.getElementById(`${mode}Guidance`);
+        const earDiv = document.getElementById(`${mode}EarDisplay`);
+        if (guidanceDiv) guidanceDiv.innerHTML = message;
+        if (earDiv && earValue !== null) {
+            const percent = Math.round((1 - earValue) * 100);
+            earDiv.innerHTML = `👀 Eye openness: ${earValue.toFixed(3)} (${percent}% closed)`;
+            if (earValue < earThreshold) earDiv.style.color = "#ffd966";
+            else earDiv.style.color = "#94a3b8";
         }
-        if (camera) camera?.stop();
     }
 
     async function initWebcam(videoElementId, mode) {
-        stopWebcam();
-        const video = document.getElementById(videoElementId);
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        video.srcObject = stream;
-        currentStream = stream;
-        await video.play();
-        
-        if (!faceMesh) {
-            faceMesh = new FaceMesh({
-                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+        updateGuidance(mode, "Requesting camera access...");
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            const video = document.getElementById(videoElementId);
+            video.srcObject = stream;
+            currentStream = stream;
+            await video.play();
+            updateGuidance(mode, "Camera active. Looking for your face...");
+            
+            // Initialize MediaPipe
+            if (!faceMesh) {
+                faceMesh = new FaceMesh({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+                });
+                faceMesh.setOptions({
+                    maxNumFaces: 1,
+                    refineLandmarks: true,
+                    minDetectionConfidence: 0.5,
+                    minTrackingConfidence: 0.5
+                });
+                faceMesh.onResults((results) => onFaceMeshResults(results, mode));
+            }
+            if (camera) camera.stop();
+            camera = new Camera(video, {
+                onFrame: async () => { await faceMesh.send({ image: video }); },
+                width: 640,
+                height: 480
             });
-            faceMesh.setOptions({
-                maxNumFaces: 1,
-                refineLandmarks: true,
-                minDetectionConfidence: 0.5,
-                minTrackingConfidence: 0.5
-            });
-            faceMesh.onResults((results) => onFaceMeshResults(results, mode));
+            camera.start();
+        } catch (err) {
+            updateGuidance(mode, `❌ Camera error: ${err.message}. Please allow camera access.`, 1.0);
+            console.error(err);
         }
-        if (camera) camera.stop();
-        camera = new Camera(video, {
-            onFrame: async () => { await faceMesh.send({ image: video }); },
-            width: 640,
-            height: 480
-        });
-        camera.start();
     }
 
     function calculateEAR(landmarks, indices) {
@@ -576,29 +442,62 @@
         const vertical1 = Math.hypot(p2.x - p6.x, p2.y - p6.y);
         const vertical2 = Math.hypot(p3.x - p5.x, p3.y - p5.y);
         const horizontal = Math.hypot(p1.x - p4.x, p1.y - p4.y);
-        return (vertical1 + vertical2) / (2.0 * horizontal);
+        let ear = (vertical1 + vertical2) / (2.0 * horizontal);
+        // clamp to [0,1]
+        ear = Math.min(0.99, Math.max(0.01, ear));
+        return ear;
     }
 
+    // Calibrate threshold based on open eye value (average of first 30 frames)
+    let calibrationFrames = 0;
+    let calibrationSum = 0;
+    let calibrated = false;
+
     function onFaceMeshResults(results, mode) {
-        if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) return;
+        if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
+            updateGuidance(mode, "⚠️ No face detected. Please look directly at the camera.", 1.0);
+            return;
+        }
         const landmarks = results.multiFaceLandmarks[0];
         const ear = calculateEAR(landmarks, [33, 133, 157, 158, 159, 160, 161, 173]);
-        const threshold = 0.20;
-        const overlay = document.getElementById(mode === 'register' ? 'registerSqueezeOverlay' : 'verifySqueezeOverlay');
+        lastEarValue = ear;
         
-        if (ear < threshold && !squeezeDetected) {
+        // Calibration: average the EAR when eyes are open (first 60 frames)
+        if (!calibrated && calibrationFrames < 60) {
+            calibrationSum += ear;
+            calibrationFrames++;
+            if (calibrationFrames === 60) {
+                const avgOpenEar = calibrationSum / 60;
+                earThreshold = avgOpenEar * 0.45;   // squeeze when EAR drops to 45% of open value
+                earThreshold = Math.min(0.25, Math.max(0.12, earThreshold)); // clamp reasonable range
+                calibrated = true;
+                updateGuidance(mode, `✅ Calibrated. Squeeze your eye firmly (threshold = ${earThreshold.toFixed(3)}).`, ear);
+                console.log(`Calibrated threshold: ${earThreshold}`);
+            } else {
+                updateGuidance(mode, `Calibrating... please keep eyes open. (${calibrationFrames}/60)`, ear);
+            }
+            return;
+        }
+        
+        // After calibration, show guidance and detect squeeze
+        if (!calibrated) return;
+        
+        const overlay = document.getElementById(mode === 'register' ? 'registerSqueezeOverlay' : 'verifySqueezeOverlay');
+        updateGuidance(mode, ear < earThreshold ? "👍 Squeeze detected! Recording..." : "😐 Eyes open. Squeeze firmly to trigger.", ear);
+        
+        if (ear < earThreshold && !squeezeDetected) {
             squeezeDetected = true;
             if (overlay) {
                 overlay.innerText = '👁️ SQUEEZE DETECTED!';
                 overlay.classList.add('active');
-                setTimeout(() => overlay.classList.remove('active'), 300);
+                setTimeout(() => overlay.classList.remove('active'), 500);
             }
             if (mode === 'register') handleRegisterSqueeze();
             else if (mode === 'verify') handleVerifySqueeze();
-        } else if (ear >= threshold + 0.05) {
+        } else if (ear >= earThreshold + 0.03) {
             squeezeDetected = false;
             if (overlay && mode === 'register' && registrationSqueezeCount < 3) overlay.innerText = `Ready for squeeze ${registrationSqueezeCount+1}/3`;
-            else if (overlay && mode === 'verify') overlay.innerText = 'Monitoring';
+            else if (overlay && mode === 'verify') overlay.innerText = '🔍 Monitoring';
         }
     }
 
@@ -608,6 +507,9 @@
         overlay.innerText = `Recording ${registrationSqueezeCount+1}/3...`;
         const video = document.getElementById('registerVideo');
         const stream = video.srcObject;
+        // iOS requires the recorder to be created in user gesture context, but we are inside a MediaPipe callback which is not a user gesture.
+        // Workaround: use a short timeout to let the event loop settle, but iOS may still block.
+        // Better: use a button fallback? But we want automatic. We'll try anyway.
         const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
         let chunks = [];
         recorder.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
@@ -627,7 +529,7 @@
 
     async function uploadRegistration() {
         const statusDiv = document.getElementById('registerStatus');
-        statusDiv.innerHTML = 'Uploading...';
+        statusDiv.innerHTML = 'Uploading enrollment data...';
         const formData = new FormData();
         for (let i=0; i<registrationRecordings.length; i++) formData.append('videos', registrationRecordings[i], `squeeze_${i}.webm`);
         const nameField = document.querySelector('.field-group input[name="name"]');
@@ -645,8 +547,12 @@
                 alert(`User ${name} enrolled!`);
                 registrationSqueezeCount = 0;
                 registrationRecordings = [];
+                // reset calibration for next user
+                calibrated = false;
+                calibrationFrames = 0;
+                calibrationSum = 0;
             } else statusDiv.innerHTML = `❌ Error: ${data.detail}`;
-        } catch(err) { statusDiv.innerHTML = `❌ Network error`; }
+        } catch(err) { statusDiv.innerHTML = `❌ Network error: ${err.message}`; }
     }
 
     async function handleVerifySqueeze() {
@@ -693,6 +599,7 @@
         verifyCallback = true;
     }
 
+    // Data page functions (unchanged)
     async function loadData() {
         const container = document.getElementById('userList');
         container.innerHTML = '<div>Loading...</div>';
@@ -724,7 +631,7 @@
                 btn.onclick = async (e) => {
                     e.stopPropagation();
                     const id = btn.getAttribute('data-id');
-                    if (confirm('Delete?')) {
+                    if (confirm('Delete user?')) {
                         const res = await fetch(`${API_BASE}/users/${id}`, { method: 'DELETE' });
                         if (res.ok) loadData();
                         else alert('Delete failed');
@@ -774,6 +681,9 @@
     };
 
     async function switchPage(page) {
+        // Stop any ongoing recording and webcam when leaving pages
+        if (camera) camera.stop();
+        stopWebcam();
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
         document.getElementById(page + 'Page').classList.add('active-page');
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -781,16 +691,31 @@
         if (page === 'register') {
             registrationSqueezeCount = 0;
             registrationRecordings = [];
+            calibrated = false;
+            calibrationFrames = 0;
+            calibrationSum = 0;
             document.getElementById('registerStatus').innerHTML = 'Waiting for 3 squeezes...';
             initDynamicFields();
             await initWebcam('registerVideo', 'register');
         } else if (page === 'verify') {
+            calibrated = false;
+            calibrationFrames = 0;
+            calibrationSum = 0;
             document.getElementById('verifyResult').style.display = 'none';
             await initWebcam('verifyVideo', 'verify');
         } else if (page === 'data') {
             stopWebcam();
             await loadData();
         }
+    }
+
+    function stopWebcam() {
+        if (currentStream) {
+            currentStream.getTracks().forEach(t => t.stop());
+            currentStream = null;
+        }
+        if (camera) camera.stop();
+        camera = null;
     }
 
     // Welcome overlay dismissal
