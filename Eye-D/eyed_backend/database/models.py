@@ -13,6 +13,8 @@ from datetime import datetime
 
 # Base class for all table definitions
 Base = declarative_base()
+# database/models.py – add this column inside class User
+metadata = Column(String(2000), nullable=True)   # JSON string
 
 class User(Base):
     """
