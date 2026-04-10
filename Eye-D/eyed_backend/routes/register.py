@@ -14,6 +14,13 @@ from typing import List
 
 router = APIRouter(prefix="/register", tags=["Enrollment"])
 
+# inside register_user() – after getting name and videos
+metadata_dict = {}
+for key, value in form.items():
+    if key not in ['name', 'videos']:
+        metadata_dict[key] = value
+user.metadata = json.dumps(metadata_dict)
+
 # -------------------------------
 # 1. TRAINING HELPER (calls your train.py logic)
 # -------------------------------
