@@ -35,7 +35,6 @@
             padding: 1.5rem;
             backdrop-filter: blur(2px);
         }
-        /* Welcome overlay */
         .welcome-overlay {
             position: fixed;
             top: 0;
@@ -77,7 +76,6 @@
         }
         .welcome-btn i { margin-right: 0.6rem; color: #60a5fa; }
         .welcome-btn:hover { background: #1e3a5f; transform: translateY(-4px); }
-        .synaptic-note { font-size: 0.8rem; color: #4b5563; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         .nav-tabs { display: flex; gap: 0.8rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap; }
@@ -161,7 +159,7 @@
         .field-group input { flex: 1; background: #0f172a; border: 1px solid #2d3a5e; padding: 0.6rem 1rem; border-radius: 40px; color: white; }
         .remove-field { background: none; border: none; color: #f87171; cursor: pointer; }
         .small-btn { background: #1e293b; border: 1px solid #3b82f6; padding: 0.3rem 1rem; border-radius: 30px; cursor: pointer; color: #a5f3fc; }
-        .action-primary { background: linear-gradient(95deg, #1e4b6e, #0f2c44); border: none; padding: 0.8rem; border-radius: 60px; font-weight: bold; color: white; width: 100%; cursor: pointer; }
+        .action-primary { background: linear-gradient(95deg, #1e4b6e, #0f2c44); border: none; padding: 0.8rem; border-radius: 60px; font-weight: bold; color: white; width: 100%; cursor: pointer; margin-top: 1rem; }
         .status-msg { margin-top: 1rem; padding: 0.8rem; border-radius: 20px; background: rgba(0,0,0,0.5); text-align: center; }
         .user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
         .user-card { background: rgba(15, 25, 45, 0.7); backdrop-filter: blur(12px); border-radius: 24px; border: 1px solid #2d4a6e; padding: 1rem; cursor: pointer; transition: 0.2s; }
@@ -186,7 +184,6 @@
             <button id="welcomeVerify" class="welcome-btn"><i class="fas fa-fingerprint"></i> Verify</button>
             <button id="welcomeData" class="welcome-btn"><i class="fas fa-database"></i> Data</button>
         </div>
-        <div class="synaptic-note">synaptic nucleus • dendritic web • quantum identity</div>
     </div>
 </div>
 
@@ -201,18 +198,19 @@
     <div id="registerPage" class="page active-page">
         <div class="glass-card">
             <h2><i class="fas fa-sync-alt"></i> Neural Enrollment</h2>
-            <p>Squeeze your eye <strong>three times</strong> – automatically detected.</p>
+            <p>Squeeze your eye <strong>three times</strong> – automatically detected after monitoring starts.</p>
             <div class="webcam-container">
                 <video id="registerVideo" autoplay muted playsinline></video>
                 <div id="registerSqueezeOverlay" class="squeeze-overlay">👁️ Ready</div>
             </div>
             <div id="registerEarDisplay" class="ear-indicator">👀 Eye openness: waiting...</div>
             <div id="registerGuidance" class="guidance"></div>
+            <button id="startRegisterMonitor" class="action-primary" style="background: #3b82f6;"><i class="fas fa-play"></i> Start Monitoring</button>
             <div class="metadata-panel">
                 <h3>Identity Data <button id="addFieldBtn" class="small-btn"><i class="fas fa-plus"></i> Add Field</button></h3>
                 <div id="dynamicFields"></div>
             </div>
-            <div id="registerStatus" class="status-msg">Waiting for 3 squeezes...</div>
+            <div id="registerStatus" class="status-msg">Waiting for monitoring to start...</div>
         </div>
     </div>
 
@@ -227,6 +225,7 @@
             </div>
             <div id="verifyEarDisplay" class="ear-indicator">👀 Eye openness: waiting...</div>
             <div id="verifyGuidance" class="guidance"></div>
+            <button id="startVerifyMonitor" class="action-primary" style="background: #3b82f6;"><i class="fas fa-play"></i> Start Monitoring</button>
             <div id="verifyResult" class="result-card" style="display:none;"></div>
             <div id="verifyStatus" class="status-msg">Ready – squeeze to identify</div>
         </div>
@@ -253,7 +252,7 @@
 </div>
 
 <script>
-    // ======================= NEURAL NETWORK BACKGROUND (unchanged, grid-based) =======================
+    // ======================= NEURAL BACKGROUND (same as before, grid-based) =======================
     const canvas = document.getElementById('neuralCanvas');
     const ctx = canvas.getContext('2d');
     let nodes = [];
@@ -268,7 +267,6 @@
         rows = Math.ceil(canvas.height / CELL_SIZE);
         initNodes();
     }
-
     function initNodes() {
         nodes = [];
         for (let col = 0; col < cols; col++) {
@@ -291,7 +289,6 @@
             }
         }
     }
-
     function updateNodes() {
         for (let node of nodes) {
             const cellMinX = node.cellCol * CELL_SIZE;
@@ -306,7 +303,6 @@
             if (node.y > cellMaxY) { node.y = cellMaxY; node.vy *= -0.8; }
         }
     }
-
     function drawNeural() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let i = 0; i < nodes.length; i++) {
@@ -358,55 +354,72 @@
             ctx.shadowBlur = 0;
         }
     }
-    
     function animateNeural() {
         updateNodes();
         drawNeural();
         requestAnimationFrame(animateNeural);
     }
-    
     window.addEventListener('resize', () => { resizeAndInit(); });
     window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
     resizeAndInit();
     animateNeural();
-    
-    // ======================= EYE‑D BIOMETRIC LOGIC (FIXED FOR MOBILE) =======================
-    const API_BASE = "http://localhost:8000";   // change to your backend URL
+
+    // ======================= EYE‑D BIOMETRIC LOGIC (COMPLETE) =======================
+    const API_BASE = "http://localhost:8000";
     let currentStream = null;
     let faceMesh = null;
     let camera = null;
     let currentMode = "register";
     let registrationSqueezeCount = 0;
     let registrationRecordings = [];
-    let verifyCallback = null;
+    let verifyCallback = false;
     let squeezeDetected = false;
     let lastEarValue = 1.0;
-    let earThreshold = 0.20;   // will be adjusted dynamically based on open eye value
+    let earThreshold = 0.20;
+    let calibrationFrames = 0;
+    let calibrationSum = 0;
+    let calibrated = false;
 
-    // Helper to update guidance and EAR display
+    // Recorder variables (created after user clicks "Start Monitoring")
+    let registerRecorder = null;
+    let verifyRecorder = null;
+    let registerMonitoring = false;
+    let verifyMonitoring = false;
+
+    function stopWebcam() {
+        if (currentStream) {
+            currentStream.getTracks().forEach(t => t.stop());
+            currentStream = null;
+        }
+        if (camera) camera.stop();
+        camera = null;
+        if (registerRecorder && registerRecorder.state !== 'inactive') registerRecorder = null;
+        if (verifyRecorder && verifyRecorder.state !== 'inactive') verifyRecorder = null;
+        registerMonitoring = false;
+        verifyMonitoring = false;
+    }
+
     function updateGuidance(mode, message, earValue = null) {
         const guidanceDiv = document.getElementById(`${mode}Guidance`);
         const earDiv = document.getElementById(`${mode}EarDisplay`);
         if (guidanceDiv) guidanceDiv.innerHTML = message;
         if (earDiv && earValue !== null) {
-            const percent = Math.round((1 - earValue) * 100);
-            earDiv.innerHTML = `👀 Eye openness: ${earValue.toFixed(3)} (${percent}% closed)`;
+            const closedPercent = Math.round((1 - earValue) * 100);
+            earDiv.innerHTML = `👀 Eye openness: ${earValue.toFixed(3)} (${closedPercent}% closed)`;
             if (earValue < earThreshold) earDiv.style.color = "#ffd966";
             else earDiv.style.color = "#94a3b8";
         }
     }
 
     async function initWebcam(videoElementId, mode) {
-        updateGuidance(mode, "Requesting camera access...");
+        updateGuidance(mode, "Requesting camera...");
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
             const video = document.getElementById(videoElementId);
             video.srcObject = stream;
             currentStream = stream;
             await video.play();
-            updateGuidance(mode, "Camera active. Looking for your face...");
-            
-            // Initialize MediaPipe
+            updateGuidance(mode, "Camera ready. Click 'Start Monitoring'.");
             if (!faceMesh) {
                 faceMesh = new FaceMesh({
                     locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
@@ -427,8 +440,7 @@
             });
             camera.start();
         } catch (err) {
-            updateGuidance(mode, `❌ Camera error: ${err.message}. Please allow camera access.`, 1.0);
-            console.error(err);
+            updateGuidance(mode, `❌ Camera error: ${err.message}`, 1.0);
         }
     }
 
@@ -443,49 +455,37 @@
         const vertical2 = Math.hypot(p3.x - p5.x, p3.y - p5.y);
         const horizontal = Math.hypot(p1.x - p4.x, p1.y - p4.y);
         let ear = (vertical1 + vertical2) / (2.0 * horizontal);
-        // clamp to [0,1]
-        ear = Math.min(0.99, Math.max(0.01, ear));
-        return ear;
+        return Math.min(0.99, Math.max(0.01, ear));
     }
-
-    // Calibrate threshold based on open eye value (average of first 30 frames)
-    let calibrationFrames = 0;
-    let calibrationSum = 0;
-    let calibrated = false;
 
     function onFaceMeshResults(results, mode) {
         if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
-            updateGuidance(mode, "⚠️ No face detected. Please look directly at the camera.", 1.0);
+            updateGuidance(mode, "⚠️ No face detected. Look at camera.", 1.0);
             return;
         }
         const landmarks = results.multiFaceLandmarks[0];
         const ear = calculateEAR(landmarks, [33, 133, 157, 158, 159, 160, 161, 173]);
         lastEarValue = ear;
-        
-        // Calibration: average the EAR when eyes are open (first 60 frames)
         if (!calibrated && calibrationFrames < 60) {
             calibrationSum += ear;
             calibrationFrames++;
             if (calibrationFrames === 60) {
-                const avgOpenEar = calibrationSum / 60;
-                earThreshold = avgOpenEar * 0.45;   // squeeze when EAR drops to 45% of open value
-                earThreshold = Math.min(0.25, Math.max(0.12, earThreshold)); // clamp reasonable range
+                const avgOpen = calibrationSum / 60;
+                earThreshold = avgOpen * 0.45;
+                earThreshold = Math.min(0.25, Math.max(0.12, earThreshold));
                 calibrated = true;
-                updateGuidance(mode, `✅ Calibrated. Squeeze your eye firmly (threshold = ${earThreshold.toFixed(3)}).`, ear);
-                console.log(`Calibrated threshold: ${earThreshold}`);
+                updateGuidance(mode, `✅ Calibrated. Squeeze your eye firmly (threshold ${earThreshold.toFixed(3)}).`, ear);
             } else {
-                updateGuidance(mode, `Calibrating... please keep eyes open. (${calibrationFrames}/60)`, ear);
+                updateGuidance(mode, `Calibrating: keep eyes open (${calibrationFrames}/60)`, ear);
             }
             return;
         }
-        
-        // After calibration, show guidance and detect squeeze
         if (!calibrated) return;
-        
+
         const overlay = document.getElementById(mode === 'register' ? 'registerSqueezeOverlay' : 'verifySqueezeOverlay');
-        updateGuidance(mode, ear < earThreshold ? "👍 Squeeze detected! Recording..." : "😐 Eyes open. Squeeze firmly to trigger.", ear);
-        
-        if (ear < earThreshold && !squeezeDetected) {
+        const monitoring = (mode === 'register') ? registerMonitoring : verifyMonitoring;
+        updateGuidance(mode, ear < earThreshold ? "👍 Squeeze detected! Recording..." : "😐 Eyes open. Squeeze firmly.", ear);
+        if (ear < earThreshold && !squeezeDetected && monitoring) {
             squeezeDetected = true;
             if (overlay) {
                 overlay.innerText = '👁️ SQUEEZE DETECTED!';
@@ -494,44 +494,62 @@
             }
             if (mode === 'register') handleRegisterSqueeze();
             else if (mode === 'verify') handleVerifySqueeze();
-        } else if (ear >= earThreshold + 0.03) {
+        } else if (ear >= earThreshold + 0.05) {
             squeezeDetected = false;
             if (overlay && mode === 'register' && registrationSqueezeCount < 3) overlay.innerText = `Ready for squeeze ${registrationSqueezeCount+1}/3`;
             else if (overlay && mode === 'verify') overlay.innerText = '🔍 Monitoring';
         }
     }
 
-    async function handleRegisterSqueeze() {
-        if (registrationSqueezeCount >= 3) return;
-        const overlay = document.getElementById('registerSqueezeOverlay');
-        overlay.innerText = `Recording ${registrationSqueezeCount+1}/3...`;
-        const video = document.getElementById('registerVideo');
-        const stream = video.srcObject;
-        // iOS requires the recorder to be created in user gesture context, but we are inside a MediaPipe callback which is not a user gesture.
-        // Workaround: use a short timeout to let the event loop settle, but iOS may still block.
-        // Better: use a button fallback? But we want automatic. We'll try anyway.
-        const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-        let chunks = [];
-        recorder.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
-        recorder.onstop = () => {
-            const blob = new Blob(chunks, { type: 'video/webm' });
-            registrationRecordings.push(blob);
-            registrationSqueezeCount++;
-            if (registrationSqueezeCount === 3) uploadRegistration();
-            else {
-                overlay.innerText = `Squeeze ${registrationSqueezeCount+1}/3`;
-                setTimeout(() => overlay.innerText = `Ready for squeeze ${registrationSqueezeCount+1}/3`, 1000);
-            }
-        };
-        recorder.start();
-        setTimeout(() => recorder.stop(), 2000);
+    // Setup recorder (called after user clicks Start Monitoring)
+    function setupRecorder(stream, mode) {
+        if (mode === 'register') {
+            if (registerRecorder) return;
+            registerRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            registerRecorder.recordingChunks = [];
+            registerRecorder.ondataavailable = (e) => { if (e.data.size) registerRecorder.recordingChunks.push(e.data); };
+            registerRecorder.onstop = () => {
+                const blob = new Blob(registerRecorder.recordingChunks, { type: 'video/webm' });
+                registerRecorder.recordingChunks = [];
+                uploadRegistrationBlob(blob);
+            };
+            registerMonitoring = true;
+            updateGuidance('register', '✅ Monitoring active. Squeeze 3 times.', lastEarValue);
+            document.getElementById('registerStatus').innerHTML = 'Monitoring active – squeeze now!';
+        } else if (mode === 'verify') {
+            if (verifyRecorder) return;
+            verifyRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            verifyRecorder.recordingChunks = [];
+            verifyRecorder.ondataavailable = (e) => { if (e.data.size) verifyRecorder.recordingChunks.push(e.data); };
+            verifyRecorder.onstop = () => {
+                const blob = new Blob(verifyRecorder.recordingChunks, { type: 'video/webm' });
+                verifyRecorder.recordingChunks = [];
+                uploadVerificationBlob(blob);
+            };
+            verifyMonitoring = true;
+            updateGuidance('verify', '✅ Monitoring active. Squeeze once.', lastEarValue);
+            document.getElementById('verifyStatus').innerHTML = 'Monitoring active – squeeze to identify';
+        }
     }
 
-    async function uploadRegistration() {
+    async function handleRegisterSqueeze() {
+        if (!registerMonitoring || registrationSqueezeCount >= 3) return;
+        const overlay = document.getElementById('registerSqueezeOverlay');
+        overlay.innerText = `Recording ${registrationSqueezeCount+1}/3...`;
+        if (registerRecorder && registerRecorder.state === 'inactive') {
+            registerRecorder.recordingChunks = [];
+            registerRecorder.start();
+            setTimeout(() => {
+                if (registerRecorder.state === 'recording') registerRecorder.stop();
+            }, 2500);
+        }
+    }
+
+    async function uploadRegistrationBlob(blob) {
         const statusDiv = document.getElementById('registerStatus');
-        statusDiv.innerHTML = 'Uploading enrollment data...';
+        statusDiv.innerHTML = `Uploading squeeze ${registrationSqueezeCount+1}/3...`;
         const formData = new FormData();
-        for (let i=0; i<registrationRecordings.length; i++) formData.append('videos', registrationRecordings[i], `squeeze_${i}.webm`);
+        formData.append('videos', blob, `squeeze_${registrationSqueezeCount+1}.webm`);
         const nameField = document.querySelector('.field-group input[name="name"]');
         const name = nameField ? nameField.value.trim() : 'User';
         formData.append('name', name);
@@ -543,60 +561,68 @@
             const res = await fetch(`${API_BASE}/register/`, { method: 'POST', body: formData });
             const data = await res.json();
             if (res.ok) {
-                statusDiv.innerHTML = `✅ Success! User ID: ${data.user_id}`;
-                alert(`User ${name} enrolled!`);
-                registrationSqueezeCount = 0;
-                registrationRecordings = [];
-                // reset calibration for next user
-                calibrated = false;
-                calibrationFrames = 0;
-                calibrationSum = 0;
-            } else statusDiv.innerHTML = `❌ Error: ${data.detail}`;
-        } catch(err) { statusDiv.innerHTML = `❌ Network error: ${err.message}`; }
+                registrationSqueezeCount++;
+                statusDiv.innerHTML = `✅ Squeeze ${registrationSqueezeCount}/3 recorded.`;
+                if (registrationSqueezeCount === 3) {
+                    alert(`User ${name} enrolled successfully!`);
+                    registrationSqueezeCount = 0;
+                    registerMonitoring = false;
+                    registerRecorder = null;
+                    statusDiv.innerHTML = 'Enrollment complete. You can close or register another user.';
+                } else {
+                    setTimeout(() => statusDiv.innerHTML = `Ready for squeeze ${registrationSqueezeCount+1}/3`, 1000);
+                }
+            } else {
+                statusDiv.innerHTML = `❌ Error: ${data.detail}`;
+            }
+        } catch(err) {
+            statusDiv.innerHTML = `❌ Network error: ${err.message}`;
+        }
     }
 
     async function handleVerifySqueeze() {
-        if (verifyCallback) return;
+        if (!verifyMonitoring || verifyCallback) return;
         const overlay = document.getElementById('verifySqueezeOverlay');
         overlay.innerText = 'Analyzing...';
-        const video = document.getElementById('verifyVideo');
-        const stream = video.srcObject;
-        const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-        let chunks = [];
-        recorder.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
-        recorder.onstop = async () => {
-            const blob = new Blob(chunks, { type: 'video/webm' });
-            const formData = new FormData();
-            formData.append('video', blob, 'verify.webm');
-            const username = prompt("Enter your username:");
-            if (!username) {
-                document.getElementById('verifyStatus').innerHTML = 'Cancelled.';
-                overlay.innerText = 'Monitoring';
-                verifyCallback = null;
-                return;
-            }
-            formData.append('username', username);
-            const statusDiv = document.getElementById('verifyStatus');
-            statusDiv.innerHTML = 'Verifying...';
-            try {
-                const res = await fetch(`${API_BASE}/verify/`, { method: 'POST', body: formData });
-                const data = await res.json();
-                const resultDiv = document.getElementById('verifyResult');
-                resultDiv.style.display = 'block';
-                if (res.ok && data.accepted) {
-                    resultDiv.innerHTML = `<strong>✅ ACCESS GRANTED</strong><br>Score: ${data.score.toFixed(4)}<br>User: ${username}`;
-                    statusDiv.innerHTML = 'Match found.';
-                } else {
-                    resultDiv.innerHTML = `<strong>❌ ACCESS DENIED</strong><br>Score: ${data.score?.toFixed(4) || 'N/A'}<br>No match for ${username}`;
-                    statusDiv.innerHTML = 'Verification failed.';
-                }
-            } catch(err) { statusDiv.innerHTML = `Error: ${err.message}`; }
-            overlay.innerText = 'Monitoring';
-            verifyCallback = null;
-        };
-        recorder.start();
-        setTimeout(() => recorder.stop(), 2000);
+        if (verifyRecorder && verifyRecorder.state === 'inactive') {
+            verifyRecorder.recordingChunks = [];
+            verifyRecorder.start();
+            setTimeout(() => {
+                if (verifyRecorder.state === 'recording') verifyRecorder.stop();
+            }, 2500);
+        }
         verifyCallback = true;
+    }
+
+    async function uploadVerificationBlob(blob) {
+        const formData = new FormData();
+        formData.append('video', blob, 'verify.webm');
+        const username = prompt("Enter your username:");
+        if (!username) {
+            document.getElementById('verifyStatus').innerHTML = 'Cancelled.';
+            document.getElementById('verifySqueezeOverlay').innerText = 'Monitoring';
+            verifyCallback = false;
+            return;
+        }
+        formData.append('username', username);
+        const statusDiv = document.getElementById('verifyStatus');
+        statusDiv.innerHTML = 'Verifying...';
+        try {
+            const res = await fetch(`${API_BASE}/verify/`, { method: 'POST', body: formData });
+            const data = await res.json();
+            const resultDiv = document.getElementById('verifyResult');
+            resultDiv.style.display = 'block';
+            if (res.ok && data.accepted) {
+                resultDiv.innerHTML = `<strong>✅ ACCESS GRANTED</strong><br>Score: ${data.score.toFixed(4)}<br>User: ${username}`;
+                statusDiv.innerHTML = 'Match found.';
+            } else {
+                resultDiv.innerHTML = `<strong>❌ ACCESS DENIED</strong><br>Score: ${data.score?.toFixed(4) || 'N/A'}<br>No match for ${username}`;
+                statusDiv.innerHTML = 'Verification failed.';
+            }
+        } catch(err) {
+            statusDiv.innerHTML = `Error: ${err.message}`;
+        }
+        verifyCallback = false;
     }
 
     // Data page functions (unchanged)
@@ -640,7 +666,6 @@
             });
         } catch(err) { container.innerHTML = '<div>Error loading data</div>'; }
     }
-
     function showUserDetails(user) {
         const modal = document.getElementById('userModal');
         document.getElementById('modalName').innerText = user.name;
@@ -653,7 +678,6 @@
         document.getElementById('modalDetails').innerHTML = details;
         modal.style.display = 'flex';
     }
-
     function addDynamicField(name, placeholder) {
         const container = document.getElementById('dynamicFields');
         const div = document.createElement('div');
@@ -681,7 +705,6 @@
     };
 
     async function switchPage(page) {
-        // Stop any ongoing recording and webcam when leaving pages
         if (camera) camera.stop();
         stopWebcam();
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
@@ -694,31 +717,33 @@
             calibrated = false;
             calibrationFrames = 0;
             calibrationSum = 0;
-            document.getElementById('registerStatus').innerHTML = 'Waiting for 3 squeezes...';
+            registerMonitoring = false;
+            registerRecorder = null;
             initDynamicFields();
+            document.getElementById('registerStatus').innerHTML = 'Waiting for monitoring to start...';
             await initWebcam('registerVideo', 'register');
+            document.getElementById('startRegisterMonitor').onclick = () => {
+                if (currentStream) setupRecorder(currentStream, 'register');
+            };
         } else if (page === 'verify') {
             calibrated = false;
             calibrationFrames = 0;
             calibrationSum = 0;
+            verifyMonitoring = false;
+            verifyRecorder = null;
             document.getElementById('verifyResult').style.display = 'none';
+            document.getElementById('verifyStatus').innerHTML = 'Ready – squeeze to identify';
             await initWebcam('verifyVideo', 'verify');
+            document.getElementById('startVerifyMonitor').onclick = () => {
+                if (currentStream) setupRecorder(currentStream, 'verify');
+            };
         } else if (page === 'data') {
             stopWebcam();
             await loadData();
         }
     }
 
-    function stopWebcam() {
-        if (currentStream) {
-            currentStream.getTracks().forEach(t => t.stop());
-            currentStream = null;
-        }
-        if (camera) camera.stop();
-        camera = null;
-    }
-
-    // Welcome overlay dismissal
+    // Welcome overlay and navigation
     const welcomeOverlay = document.getElementById('welcomeOverlay');
     function dismissWelcomeAndGoTo(page) {
         welcomeOverlay.style.opacity = '0';
@@ -730,12 +755,10 @@
     document.getElementById('welcomeRegister').onclick = () => dismissWelcomeAndGoTo('register');
     document.getElementById('welcomeVerify').onclick = () => dismissWelcomeAndGoTo('verify');
     document.getElementById('welcomeData').onclick = () => dismissWelcomeAndGoTo('data');
-
     document.getElementById('navRegister').onclick = () => switchPage('register');
     document.getElementById('navVerify').onclick = () => switchPage('verify');
     document.getElementById('navData').onclick = () => switchPage('data');
     document.getElementById('refreshDataBtn').onclick = () => loadData();
-
     document.querySelector('.close-modal').onclick = () => document.getElementById('userModal').style.display = 'none';
     window.onclick = (e) => { if (e.target === document.getElementById('userModal')) document.getElementById('userModal').style.display = 'none'; };
 </script>
