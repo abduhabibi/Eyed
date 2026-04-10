@@ -30,7 +30,15 @@ def get_all_users():
         }
         for u in users
     ]
-
+@router.delete("/users/{user_id}")
+def delete_user(user_id: int):
+    session = get_db_session()
+    user = session.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(404, "User not found")
+    session.delete(user)
+    session.commit()
+    return {"ok": True}
 # -------------------------------
 # 1. REQUEST/RESPONSE MODELS
 # -------------------------------
