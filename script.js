@@ -11,34 +11,75 @@ const NODE_COUNT = 80;
 const CONNECT_DISTANCE = 150; // px
 const MOUSE_RADIUS = 150;
 
+// script.js - Eye‑D Neural Interface (Synaptic Nucleus Edition)
+// Contains: central nucleus + dendritic web + mouse‑attacking lines
+
+// ------------------- NEURAL NETWORK BACKGROUND (Synaptic Core) -------------------
+const canvas = document.getElementById('neuralCanvas');
+let ctx = canvas.getContext('2d');
+let nodes = [];
+let centralNucleus = { x: 0, y: 0, radius: 18, pulse: 0 };
+let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+let animationId = null;
+
+const NODE_COUNT = 120;          // more nodes for dense web
+const CONNECT_DIST = 150;        // max distance for dendritic connections
+const MOUSE_ATTRACT_DIST = 150;  // mouse "attack" radius
+const CENTRAL_FORCE = 0.002;     // slight pull towards center (keeps web coherent)
+
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    centralNucleus.x = canvas.width / 2;
+    centralNucleus.y = canvas.height / 2;
 }
 
 function initNodes() {
     nodes = [];
     for (let i = 0; i < NODE_COUNT; i++) {
+        // Spread nodes in a ring/cloud around the center, but with randomness
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 100 + Math.random() * (Math.min(canvas.width, canvas.height) * 0.4);
         nodes.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            vx: (Math.random() - 0.5) * 0.6,
-            vy: (Math.random() - 0.5) * 0.6,
-            radius: Math.random() * 2.5 + 1.5
+            x: centralNucleus.x + Math.cos(angle) * radius,
+            y: centralNucleus.y + Math.sin(angle) * radius,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            radius: Math.random() * 2.5 + 1.8,
+            // each node has a slight colour variation
+            hue: 200 + Math.random() * 40   // blue to cyan
         });
     }
 }
 
 function updateNodes() {
     for (let node of nodes) {
+        // random movement (chaotic)
+        node.vx += (Math.random() - 0.5) * 0.1;
+        node.vy += (Math.random() - 0.5) * 0.1;
+        // limit speed
+        const maxSpeed = 1.2;
+        if (Math.abs(node.vx) > maxSpeed) node.vx *= 0.98;
+        if (Math.abs(node.vy) > maxSpeed) node.vy *= 0.98;
+        
         node.x += node.vx;
         node.y += node.vy;
-        // bounce with padding
-        if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
-        if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
-        // keep inside
-        node.x = Math.min(Math.max(node.x, 0), canvas.width);
-        node.y = Math.min(Math.max(node.y, 0), canvas.height);
+        
+        // soft central attraction (keeps web anchored to nucleus)
+        const dx = centralNucleus.x - node.x;
+        const dy = centralNucleus.y - node.y;
+        const distToCenter = Math.hypot(dx, dy);
+        if (distToCenter > 10) {
+            node.vx += dx * CENTRAL_FORCE;
+            node.vy += dy * CENTRAL_FORCE;
+        }
+        
+        // boundaries with elastic bounce (stay within canvas)
+        const margin = 20;
+        if (node.x < margin) { node.x = margin; node.vx *= -0.8; }
+        if (node.x > canvas.width - margin) { node.x = canvas.width - margin; node.vx *= -0.8; }
+        if (node.y < margin) { node.y = margin; node.vy *= -0.8; }
+        if (node.y > canvas.height - margin) { node.y = canvas.height - margin; node.vy *= -0.8; }
     }
 }
 
@@ -46,56 +87,80 @@ function drawNeural() {
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw connections first (so lines are behind nodes)
-    // First, draw lines between nodes that are close (static connections for ambiance)
+    // ---- 1. Dendritic connections between nodes (chaotic web) ----
     for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
             const dx = nodes[i].x - nodes[j].x;
             const dy = nodes[i].y - nodes[j].y;
             const dist = Math.hypot(dx, dy);
-            if (dist < CONNECT_DISTANCE) {
-                const opacity = (1 - dist / CONNECT_DISTANCE) * 0.25;
+            if (dist < CONNECT_DIST) {
+                const opacity = (1 - dist / CONNECT_DIST) * 0.35;
                 ctx.beginPath();
                 ctx.moveTo(nodes[i].x, nodes[i].y);
                 ctx.lineTo(nodes[j].x, nodes[j].y);
-                ctx.strokeStyle = `rgba(59, 130, 246, ${opacity})`;
-                ctx.lineWidth = 1;
+                ctx.strokeStyle = `rgba(0, 180, 255, ${opacity})`;
+                ctx.lineWidth = 1.2;
                 ctx.stroke();
             }
         }
     }
     
-    // Draw mouse‑connected lines (dynamic, with neon glow)
+    // ---- 2. Mouse "attack" lines (connect to nodes within 150px, neon glow) ----
     for (let node of nodes) {
         const distToMouse = Math.hypot(node.x - mouseX, node.y - mouseY);
-        if (distToMouse < MOUSE_RADIUS) {
-            const intensity = 1 - distToMouse / MOUSE_RADIUS;
-            const glowStrength = intensity * 0.8;
+        if (distToMouse < MOUSE_ATTRACT_DIST) {
+            const intensity = 1 - distToMouse / MOUSE_ATTRACT_DIST;
             ctx.beginPath();
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(mouseX, mouseY);
-            ctx.strokeStyle = `rgba(0, 200, 255, ${glowStrength * 0.9})`;
-            ctx.lineWidth = 1.8;
+            ctx.strokeStyle = `rgba(0, 220, 255, ${intensity * 0.9})`;
+            ctx.lineWidth = 2;
             ctx.shadowBlur = 8;
             ctx.shadowColor = '#00ccff';
             ctx.stroke();
-            // reset shadow for other drawings
-            ctx.shadowBlur = 0;
         }
     }
+    ctx.shadowBlur = 0;
     
-    // Draw nodes (points)
+    // ---- 3. Draw all nodes (crystal points) ----
     for (let node of nodes) {
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(100, 180, 255, 0.7)`;
+        // gradient fill for "crystalline" look
+        const grad = ctx.createRadialGradient(node.x-2, node.y-2, 1, node.x, node.y, node.radius);
+        grad.addColorStop(0, `hsl(${node.hue}, 100%, 70%)`);
+        grad.addColorStop(1, `hsl(${node.hue}, 80%, 40%)`);
+        ctx.fillStyle = grad;
         ctx.fill();
-        // small inner glow
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, node.radius * 0.6, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(200, 230, 255, 0.9)`;
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = `hsl(${node.hue}, 100%, 60%)`;
         ctx.fill();
+        ctx.shadowBlur = 0;
     }
+    
+    // ---- 4. Central Synaptic Nucleus (radiant energy cluster) ----
+    const pulse = Math.sin(Date.now() * 0.003) * 0.2 + 0.8;
+    const nucleusRadius = centralNucleus.radius * (0.9 + pulse * 0.2);
+    const gradCore = ctx.createRadialGradient(
+        centralNucleus.x - 5, centralNucleus.y - 5, 5,
+        centralNucleus.x, centralNucleus.y, nucleusRadius
+    );
+    gradCore.addColorStop(0, '#ffffff');
+    gradCore.addColorStop(0.4, '#3b82f6');
+    gradCore.addColorStop(1, '#1e3a8a');
+    ctx.beginPath();
+    ctx.arc(centralNucleus.x, centralNucleus.y, nucleusRadius, 0, Math.PI*2);
+    ctx.fillStyle = gradCore;
+    ctx.fill();
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = '#3b82f6';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    // inner bright core
+    ctx.beginPath();
+    ctx.arc(centralNucleus.x, centralNucleus.y, nucleusRadius * 0.4, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.fill();
 }
 
 function animateNeural() {
@@ -111,7 +176,7 @@ function startNeuralBackground() {
     animateNeural();
     window.addEventListener('resize', () => {
         resizeCanvas();
-        initNodes(); // reposition nodes after resize
+        initNodes();   // reposition nodes relative to new center
     });
     window.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
@@ -119,6 +184,20 @@ function startNeuralBackground() {
     });
 }
 
+// ------------------- (ALL BIOMETRIC LOGIC REMAINS EXACTLY AS BEFORE) -------------------
+// ... paste the unchanged Eye‑D functions here (from the previous script.js) ...
+// To avoid duplication, I assume you already have the full biometric code.
+// In practice, you would replace only the neural background part and keep the rest.
+
+// For completeness, here is a placeholder comment – but you must merge with your existing script.
+// The code below is a reminder: keep your existing register/verify/data functions untouched.
+// Just replace the neural background functions (from "startNeuralBackground" to the end of the neural block)
+// and keep everything else (API_BASE, webcam, squeeze detection, etc.) identical.
+
+// ==================== PRESERVE YOUR EXISTING BIOMETRIC CODE HERE ====================
+// (The following line is a marker – do not delete your actual functions)
+// ... your existing register/verify/data logic goes here ...
+// ====================================================================================
 // ------------------- EYE‑D BIOMETRIC LOGIC -------------------
 const API_BASE = "http://localhost:8000";   // CHANGE to your backend URL
 
