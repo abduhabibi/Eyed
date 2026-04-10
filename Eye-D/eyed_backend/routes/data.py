@@ -16,6 +16,21 @@ import shutil
 from pydantic import BaseModel
 from typing import List, Optional
 
+# routes/data.py – new endpoint
+@router.get("/users")
+def get_all_users():
+    session = get_db_session()
+    users = session.query(User).all()
+    return [
+        {
+            "id": u.id,
+            "name": u.name,
+            "metadata": json.loads(u.metadata) if u.metadata else {},
+            "created_at": u.created_at.isoformat()
+        }
+        for u in users
+    ]
+
 # -------------------------------
 # 1. REQUEST/RESPONSE MODELS
 # -------------------------------
