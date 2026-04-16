@@ -435,22 +435,12 @@ function onFaceMeshResults(results, mode) {
     lastEarValue = ear;
     
     // ---- Calibration Phase (first 60 frames) ----
-    if (!calibrated && calibrationFrames < 60) {
-        calibrationSum += ear;
-        calibrationFrames++;
-        if (calibrationFrames === 60) {
-            const avgOpen = calibrationSum / 60;
-            // Set threshold to 70% of average open EAR, clamped to a reasonable range
-            earThreshold = avgOpen * 0.70;
-            earThreshold = Math.min(0.35, Math.max(0.12, earThreshold));
-            calibrated = true;
-            updateGuidance("verify", `✅ Calibrated! Open eye: ${avgOpen.toFixed(3)}. Squeeze when EAR < ${earThreshold.toFixed(3)}`, ear);
-        } else {
-            updateGuidance("verify", `Calibrating: keep eyes open (${calibrationFrames}/60)`, ear);
-        }
-        return;
-    }
-    if (!calibrated) return;
+// Replace the entire calibration block with:
+if (!calibrated) {
+    calibrated = true;
+    updateGuidance("verify", `✅ Using static threshold: ${earThreshold.toFixed(3)}. Squeeze when EAR < ${earThreshold.toFixed(3)}`, ear);
+    return;
+}
 
     // ---- Monitoring Phase ----
     const monitoring = verifyMonitoring;
@@ -558,7 +548,7 @@ let regState = {
     cooldown: false,             // Prevents immediate re-triggering
     earHistory: [],              // Stores EAR values for calibration
     calibrated: false,           // Whether registration calibration is complete
-    calibrationThreshold: 0.25,  // Threshold for registration squeeze
+    calibrationThreshold: 0.15,  // Threshold for registration squeeze
     registerFaceMesh: null,      // Separate FaceMesh instance for registration
     registerCameraStream: null,  // MediaStream for registration camera
     animationId: null            // requestAnimationFrame ID for the registration loop
@@ -699,15 +689,12 @@ function initRegisterFaceMesh() {
         
         // ---- Calibration for registration (30 frames) ----
         if (!regState.calibrated) {
-            regState.earHistory.push(ear);
-            if (regState.earHistory.length > 30) {
-                const avgEar = regState.earHistory.reduce((a,b) => a+b) / regState.earHistory.length;
-                regState.calibrationThreshold = avgEar * 0.65; // 65% of average open
-                regState.calibrated = true;
-                document.getElementById('registerStatus').innerHTML = `✅ Calibrated! Squeeze threshold: ${regState.calibrationThreshold.toFixed(3)}. Now squeeze 3 times!`;
-            }
-            return;
-        }
+    // Skip calibration: set threshold to static value
+    regState.calibrationThreshold = 0.15;   // Static threshold
+    regState.calibrated = true;
+    document.getElementById('registerStatus').innerHTML = `✅ Ready! Squeeze threshold: 0.150. Now squeeze 3 times!`;
+    return;
+    }
         
         // ---- Squeeze Detection ----
         const isSqueezed = ear < regState.calibrationThreshold;
@@ -865,9 +852,7 @@ async function switchPage(page) {
         document.getElementById('registerStatus').innerHTML = '⏳ Step 1: Enter your name, then click START';
     } else if (page === 'verify') {
         // Reset verify state and start camera
-        calibrated = false;
-        calibrationFrames = 0;
-        calibrationSum = 0;
+        calibrated = True;
         verifyMonitoring = false;
         verifyRecorder = null;
         document.getElementById('verifyResult').style.display = 'none';
