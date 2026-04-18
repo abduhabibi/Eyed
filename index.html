@@ -391,10 +391,18 @@ async function initWebcamForVerify() {
         updateGuidance("verify", "Camera ready. Click 'Start Monitoring'.");
 
         // Initialize FaceMesh only once (shared between modes in the original design)
-        if (!faceMesh) {
-            faceMesh = new FaceMesh({
-                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
-            });
+        faceMesh = new FaceMesh({
+    locateFile: (file) => {
+        // Override to use local files
+        if (file.includes('.wasm')) {
+            return '/static/face_mesh_solution_simd_wasm_bin.wasm';
+        }
+        if (file.includes('.data')) {
+            return '/static/face_mesh_solution_simd_wasm_bin.data';
+        }
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+    }
+});
             faceMesh.setOptions({
                 maxNumFaces: 1,
                 refineLandmarks: true,
