@@ -136,7 +136,31 @@
     </div>
 </div>
 
-<script>// ======================= NEURAL BACKGROUND =======================
+<script>
+    
+    // ========== FALLBACK WELCOME DISMISS ==========
+// This runs immediately and ensures navigation works even if later code breaks.
+(function() {
+    const overlay = document.getElementById('welcomeOverlay');
+    if (!overlay) return;
+    
+    document.getElementById('welcomeRegister')?.addEventListener('click', () => {
+        overlay.style.display = 'none';
+        // Attempt to switch page, but at least hide overlay
+        if (typeof switchPage === 'function') switchPage('register');
+    });
+    
+    document.getElementById('welcomeVerify')?.addEventListener('click', () => {
+        overlay.style.display = 'none';
+        if (typeof switchPage === 'function') switchPage('verify');
+    });
+    
+    document.getElementById('welcomeData')?.addEventListener('click', () => {
+        overlay.style.display = 'none';
+        if (typeof switchPage === 'function') switchPage('data');
+    });
+})();
+    // ======================= NEURAL BACKGROUND =======================
 // This section creates an animated particle network that reacts to mouse movement.
 // It runs independently in the background and does not interfere with the biometric logic.
 
