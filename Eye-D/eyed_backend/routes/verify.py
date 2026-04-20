@@ -1,73 +1,49 @@
 # routes/verify.py
-# API endpoint for user verification (authentication).
-# Expects: either user_id or username in form-data, plus a video file.
-# Returns: accept/reject decision, score, threshold.
-
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
-from routes.data import VerifyResponse, extract_features_from_video
-from database.db_handler import get_user, log_authentication
-import tempfile
 import os
-import pickle
+import shutil
+import uuid
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from database.db_handler import DBHandler
+from feature_extraction.extract_work_power import extract_total_work
 
-router = APIRouter(prefix="/verify", tags=["Authentication"])
+router = APIRouter()
+db = DBHandler()
 
-# -------------------------------
-# 1. VERIFICATION ENDPOINT
-# -------------------------------
-@router.post("/", response_model=VerifyResponse)
+# Acceptance threshold: 20% relative difference
+ACCEPTANCE_THRESHOLD = 0.20
+
+@router.post("/verify/")
 async def verify_user(
-    video: UploadFile = File(...),
-    user_id: int = Form(None),
-    username: str = Form(None)
+    username: str = Form(...),
+    video: UploadFile = File(...)
 ):
-    """
-    Authenticate a user by comparing the eyelid squeeze in the video
-    against the stored model.
-    Provide either user_id or username.
-    """
-    if user_id is None and username is None:
-        raise HTTPException(status_code=400, detail="Either user_id or username must be provided.")
-
-    # Retrieve user from database
-    user = get_user(user_id=user_id, name=username)
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found.")
-
-    # Save uploaded video to temporary file
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
-        content = await video.read()
-        tmp.write(content)
-        tmp_path = tmp.name
+    temp_dir = f"/tmp/verify_{uuid.uuid4()}"
+    os.makedirs(temp_dir, exist_ok=True)
+    file_path = os.path.join(temp_dir, "verify.webm")
 
     try:
-        # Extract feature vector from the video
-        feature_vector, dim = extract_features_from_video(tmp_path)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Feature extraction failed: {str(e)}")
+        with open(file_path, "wb") as f:
+            shutil.copyfileobj(video.file, f)
+
+        work = extract_total_work(file_path)
+        if work is None:
+            raise HTTPException(status_code=400, detail="Feature extraction failed.")
+
+        stored_work = db.get_user_template(username)
+        if stored_work is None:
+            raise HTTPException(status_code=404, detail="User not found.")
+
+        diff = abs(work - stored_work) / max(stored_work, 1e-6)
+        accepted = diff <= ACCEPTANCE_THRESHOLD
+        score = 1.0 - min(diff, 1.0)   # Normalised score (1 = perfect match)
+
+        return {
+            "accepted": accepted,
+            "score": score,
+            "extracted_work": work,
+            "template_work": stored_work,
+            "threshold": ACCEPTANCE_THRESHOLD
+        }
+
     finally:
-        os.unlink(tmp_path)
-
-    # Load the user's model
-    if not os.path.exists(user.model_path):
-        raise HTTPException(status_code=500, detail="Model file missing.")
-    with open(user.model_path, 'rb') as f:
-        model_data = pickle.load(f)
-
-    gmm = model_data['gmm']
-    threshold = model_data['threshold']
-
-    # Compute log-likelihood
-    score = gmm.score_samples(feature_vector.reshape(1, -1))[0]
-    accepted = score >= threshold
-
-    # Log the attempt
-    log_authentication(user.id, score, threshold, accepted)
-
-    message = "Access granted" if accepted else "Access denied"
-    return VerifyResponse(
-        accepted=accepted,
-        score=score,
-        threshold=threshold,
-        message=message
-    )
+        shutil.rmtree(temp_dir, ignore_errors=True)
