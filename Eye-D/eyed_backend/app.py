@@ -12,7 +12,28 @@ from routes import register, verify
 from database.models import User
 from database.db_handler import get_db_session
 import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from routes import register, verify, data
 
+app = FastAPI()
+
+# Allow frontend to call API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, restrict to your frontend domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(register.router)
+app.include_router(verify.router)
+app.include_router(data.router)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 # -------------------------------
 # 1. LOGGING CONFIGURATION
 # -------------------------------
