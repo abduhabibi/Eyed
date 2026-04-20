@@ -16,11 +16,26 @@ import shutil
 import json
 from pydantic import BaseModel
 from typing import List, Optional
+from fastapi import APIRouter, HTTPException
+from database.db_handler import DBHandler
 
 # ========================================
 # 1. REQUEST/RESPONSE MODELS
 # ========================================
+router = APIRouter()
+db = DBHandler()
 
+@router.get("/users")
+async def get_users():
+    return db.get_all_users()
+
+@router.delete("/users/{user_id}")
+async def delete_user(user_id: str):
+    success = db.delete_user(user_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"status": "deleted"}
+    
 class RegisterRequest(BaseModel):
     """Expected JSON body for user registration."""
     name: str                     # User's unique display name
