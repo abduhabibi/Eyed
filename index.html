@@ -87,13 +87,6 @@
     <div id="registerPage" class="page active-page">
         <div class="glass-card">
             <h2><i class="fas fa-sync-alt"></i> Neural Enrollment</h2>
-            <p>Enter your name below, then click <strong>START</strong>. You'll see green eye detection lines. Click <strong>RECORD SQUEEZE</strong> three times while squeezing your eye.</p>
-
-            <div class="metadata-panel">
-                <h4>Identity Data</h4>
-                <div id="dynamicFields"></div>
-                <button id="addFieldBtn" class="small-btn"><i class="fas fa-plus"></i> Add Field</button>
-            </div>
 
             <div class="webcam-container">
                 <video id="registerVideo" autoplay muted playsinline></video>
@@ -102,7 +95,13 @@
             </div>
 
             <div id="registerEarDisplay" class="ear-indicator">👀 EAR: --</div>
-            <div id="registerStatus" class="status-msg">⏳ Enter your name, then click START</div>
+            <div id="registerStatus" class="status-msg">Enter your name below, then START</div>
+
+            <div class="metadata-panel">
+                <h4 style="margin-bottom: 0.8rem;">Your Information</h4>
+                <div id="dynamicFields"></div>
+                <button id="addFieldBtn" class="small-btn"><i class="fas fa-plus"></i> Add Field</button>
+            </div>
 
             <button id="startRegisterBtn" class="action-primary"><i class="fas fa-play"></i> START REGISTRATION</button>
             <button id="recordSqueezeBtn" class="action-secondary" style="display:none;"><i class="fas fa-record-vinyl"></i> RECORD SQUEEZE (0/3)</button>

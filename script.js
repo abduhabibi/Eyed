@@ -342,24 +342,26 @@ async function uploadRegistration() {
 
     try {
         const res = await fetch(`${API_BASE}/register/`, { method: 'POST', body: formData });
-        const data = await res.json();
 
-        if (res.ok) {
-            alert(`✅ ${name} registered! ID: ${data.user_id}`);
-            regState.active = false;
-            regState.squeezeCount = 0;
-            regState.recordings = [];
-            nameField.value = '';
-            document.getElementById('recordSqueezeBtn').style.display = 'none';
-            document.getElementById('uploadRegistrationBtn').style.display = 'none';
-            document.getElementById('startRegisterBtn').style.display = 'block';
-            stopWebcam();
-            showStatus('registerStatus', '✅ Ready for next user', false);
-        } else {
+        if (!res.ok) {
+            const data = await res.json();
             showStatus('registerStatus', `❌ ${data.detail || 'Upload failed'}`, true);
+            return;
         }
+
+        const data = await res.json();
+        alert(`✅ ${name} registered! ID: ${data.user_id}`);
+        regState.active = false;
+        regState.squeezeCount = 0;
+        regState.recordings = [];
+        nameField.value = '';
+        document.getElementById('recordSqueezeBtn').style.display = 'none';
+        document.getElementById('uploadRegistrationBtn').style.display = 'none';
+        document.getElementById('startRegisterBtn').style.display = 'block';
+        stopWebcam();
+        showStatus('registerStatus', '✅ Ready for next user', false);
     } catch (err) {
-        showStatus('registerStatus', `❌ ${err.message}`, true);
+        showStatus('registerStatus', `❌ Backend not running: ${err.message}`, true);
     }
 }
 
@@ -414,10 +416,17 @@ async function verifyNow() {
 
 async function loadData() {
     const container = document.getElementById('userList');
+    if (!container) return;
+
     container.innerHTML = '<div>Loading...</div>';
 
     try {
-        const res = await fetch(`${API_BASE}/users`);
+        const res = await fetch(`${API_BASE}/users`, { timeout: 5000 });
+        if (!res.ok) {
+            container.innerHTML = '<div>⚠️ Backend not running at ' + API_BASE + '</div>';
+            return;
+        }
+
         const users = await res.json();
 
         if (users.length === 0) {
@@ -462,7 +471,7 @@ async function loadData() {
             };
         });
     } catch (err) {
-        container.innerHTML = '<div>Error loading users</div>';
+        container.innerHTML = '<div>⚠️ Backend not running: ' + API_BASE + '</div>';
     }
 }
 
@@ -511,6 +520,7 @@ function addDynamicField(name, placeholder) {
 
 function initDynamicFields() {
     const container = document.getElementById('dynamicFields');
+    if (!container) return;
     container.innerHTML = '';
     addDynamicField('name', 'Full Name (required)');
     addDynamicField('id_number', 'ID Number');
