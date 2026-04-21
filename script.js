@@ -114,7 +114,7 @@ resizeAndInit();
 animateNeural();
 
 // ======================= EYE-D BIOMETRIC =======================
-const API_BASE = "http://localhost:8000";
+const API_BASE = "https://eyed-v6zs.onrender.com";
 let currentStream = null;
 let faceMesh = null;
 let animationId = null;
