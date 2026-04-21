@@ -8,6 +8,7 @@ python-multipart==0.0.20
 
 # Database & ORM
 sqlalchemy==2.0.38
+psycopg2-binary==2.9.9
 
 # Computer Vision & Media Processing
 opencv-python==4.11.0.86
