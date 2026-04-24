@@ -4,7 +4,7 @@ services:
     runtime: python
     rootDir: Eye-D
     buildCommand: pip install -r requirements.txt
-    startCommand: python eyed_backend/app.py
+    startCommand: uvicorn eyed_backend.app:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PORT
-        value: 8000
+        value: "8000"
