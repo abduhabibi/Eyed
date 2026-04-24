@@ -11,13 +11,11 @@ sqlalchemy==2.0.38
 psycopg2-binary==2.9.9
 
 # Computer Vision & Media Processing
-opencv-python==4.11.0.86
+opencv-python-headless==4.11.0.86
 mediapipe==0.10.33
 
 # Scientific computing & machine learning
 numpy==1.26.4
-scipy==1.15.0
-scikit-learn==1.6.1
 
 # Encryption
 cryptography==44.0.2
