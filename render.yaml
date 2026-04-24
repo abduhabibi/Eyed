@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: eyed
+    runtime: python
+    rootDir: Eye-D
+    buildCommand: pip install -r requirements.txt
+    startCommand: python eyed_backend/app.py
+    envVars:
+      - key: PORT
+        value: 8000
